@@ -1,0 +1,21 @@
+[project]
+name = "tmdbwrapper"
+version = "1.0.0"
+description = "A wrapper package for the TMDB API."
+authors = [ { name = "squash" } ]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "aiohttp",
+  "requests",
+  "rich",
+  "simple-justwatch-python-api",
+]
+
+[tool.setuptools]
+packages = ["tmdbwrapper"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
