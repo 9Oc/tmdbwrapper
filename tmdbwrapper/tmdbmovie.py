@@ -668,7 +668,7 @@ class TMDBMovie:
         imdb_id: str,
         title: str,
         original_title: str | None,
-        alternative_titles: list[str],
+        alternative_titles: dict[str, str],
         year: int,
         duration: int | None,
         providers: list[Provider] | None,

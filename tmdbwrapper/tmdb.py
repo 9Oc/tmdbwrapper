@@ -86,7 +86,8 @@ class TMDBClient:
 
     async def get_movie(self, movie_id: str) -> TMDBMovie | None:
         """
-        Get full movie details by TMDB ID.
+        Build a TMDBMovie object from TMDB API data for the given movie ID.
+        Returns None if the movie could not be found or an error occurred.
         """
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
         alternative_titles_url = f"https://api.themoviedb.org/3/movie/{movie_id}/alternative_titles"
@@ -206,8 +207,9 @@ class TMDBClient:
 
     def _get_justwatch_node_id(self, movie: TMDBMovie, country: str) -> str | None:
         """
-        Search JustWatch for the movie and get its node ID
-        Uses title and year to find the correct entry
+        Search JustWatch for the given TMDBMovie and get its node ID.
+        Uses TMDB/IMDB for matching.
+        Returns the node ID if found, else None.
         """
         if not movie.title:
             return None
@@ -233,8 +235,8 @@ class TMDBClient:
 
     def _get_justwatch_offers(self, node_id: str, country: str) -> list:
         """
-        Get JustWatch offers for given node ID and country
-        Returns a list of offers if found
+        Get JustWatch offers for given node ID and country.
+        Returns a list of offers if found.
         """
         if not node_id or not country:
             return []
