@@ -318,7 +318,7 @@ class Provider:
             "amc+ roku premium channel",
             "amc plus roku premium channel",
         },
-        ProviderName.APPLE_TV.value: {"apple tv"},
+        ProviderName.APPLE_TV.value: {"apple tv", "apple tv store"},
         ProviderName.ARD_PLUS.value: {"ard plus", "ard+"},
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},

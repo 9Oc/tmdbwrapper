@@ -105,7 +105,7 @@ class TMDBClient:
                     ) as response:
                         response.raise_for_status()
                         return await response.json()
-                except Exception as e:
+                except Exception:
                     if attempt == retries:
                         raise
                     await asyncio.sleep(0.1)
