@@ -136,6 +136,10 @@ class TMDBClient:
                 alternative_titles=alternative_titles,
                 year=main_parsed.get("year"),
                 duration=main_parsed.get("duration"),
+                original_language=main_parsed.get("original_language"),
+                overview=main_parsed.get("overview"),
+                genres=main_parsed.get("genres"),
+                vote_average=main_parsed.get("vote_average"),
                 providers=providers,
             )
 
@@ -162,12 +166,26 @@ class TMDBClient:
             if match:
                 year = int(match.group(1))
 
+        original_language = data.get("original_language") or None
+
+        genre_objects = data.get("genres") or []
+        genres: list[str] = []
+        for genre in genre_objects:
+            genres.append(genre.get("name") or None)
+
+        overview = data.get("overview") or None
+        vote_average = data.get("vote_average") or None
+
         return {
             "imdb_id": imdb_id,
             "title": title,
             "original_title": original_title,
             "year": year,
             "duration": duration,
+            "original_language": original_language,
+            "genres": genres,
+            "overview": overview,
+            "vote_average": vote_average,
         }
 
     def _parse_alternative_titles_data(self, data: dict) -> list[dict]:
@@ -201,7 +219,7 @@ class TMDBClient:
                     canonical = Provider.normalize_name(provider_name)
                     bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
                     bucket.names.add(provider_name)
-                    bucket.regions.add(region_code.lower())
+                    bucket.regions.append({region_code.lower(): key})
 
         return list(buckets.values())
 
@@ -223,9 +241,18 @@ class TMDBClient:
 
             for entry in results:
                 # check TMDB ID and IMDB ID for matching
-                tmdb_match = entry.tmdb_id == str(movie.id) if entry.tmdb_id else False
                 imdb_match = entry.imdb_id == str(movie.imdb_id) if entry.imdb_id else False
+                tmdb_match = entry.tmdb_id == str(movie.id) if entry.tmdb_id else False
                 if tmdb_match or imdb_match:
+                    return entry.entry_id
+                release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
+                runtime_match = (
+                    entry.runtime_minutes == int(movie.duration // 60)
+                    if entry.runtime_minutes and movie.duration
+                    else False
+                )
+                title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+                if title_match and release_year_match and runtime_match:
                     return entry.entry_id
 
         except Exception as e:
@@ -317,7 +344,7 @@ class TMDBClient:
             return None
 
         # create node fetching tasks for all regions
-        node_tasks = [asyncio.create_task(fetch_node_id(region)) for region in regions]
+        node_tasks = [asyncio.create_task(fetch_node_id(next(iter(region.keys())))) for region in regions]
 
         try:
             for node_task in asyncio.as_completed(node_tasks):
@@ -329,7 +356,9 @@ class TMDBClient:
                 checked_node_ids.add(node_id)
 
                 # create tasks to fetch URLs for all regions with this node_id
-                url_tasks = [asyncio.create_task(fetch_provider_url(node_id, region)) for region in regions]
+                url_tasks = [
+                    asyncio.create_task(fetch_provider_url(node_id, next(iter(region.keys())))) for region in regions
+                ]
 
                 for url_task in asyncio.as_completed(url_tasks):
                     provider_url = await url_task
@@ -378,7 +407,7 @@ class TMDBClient:
                         canonical = Provider.normalize_name(provider_name)
                         bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
                         bucket.names.add(provider_name)
-                        bucket.regions.add(region_code.lower())
+                        bucket.regions.append({region_code.lower(): key})
 
             return list(buckets.values())
 

@@ -140,3 +140,4 @@ Thumbs.db
 
 # Project specific
 temp/
+tmdbwrapper/tests/

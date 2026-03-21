@@ -295,7 +295,7 @@ class ProviderName(Enum):
 class Provider:
     canonical_name: str
     names: set[str] = field(default_factory=set)  # observed names
-    regions: set[str] = field(default_factory=set)  # region code
+    regions: list[dict[str, str]] = field(default_factory=list)  # region code, type (flatrate, rent, buy, ads)
 
     ALIASES: ClassVar[dict[str, set[str]]] = {
         ProviderName.ABC_IVIEW.value: {"abc iview"},
@@ -631,11 +631,8 @@ class Provider:
         if isinstance(self.canonical_name, ProviderName):
             self.canonical_name = self.canonical_name.value
 
-    def __str__(self):
-        return f"Provider({self.canonical_name}, regions={self.regions})"
-
     def __repr__(self):
-        return self.__str__()
+        return f"Provider({self.canonical_name}, regions={self.regions})"
 
     @staticmethod
     def get_provider_name(name: str) -> ProviderName:
@@ -671,6 +668,10 @@ class TMDBMovie:
         alternative_titles: dict[str, str],
         year: int,
         duration: int | None,
+        original_language: str | None,
+        genres: list[str] | None,
+        overview: str | None,
+        vote_average: float | None,
         providers: list[Provider] | None,
     ):
         self.id = id
@@ -680,6 +681,10 @@ class TMDBMovie:
         self.alternative_titles = alternative_titles
         self.year = year
         self.duration = duration
+        self.original_language = original_language
+        self.genres = genres
+        self.overview = overview
+        self.vote_average = vote_average
         self.providers = providers
 
     def __repr__(self):
