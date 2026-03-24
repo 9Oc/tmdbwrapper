@@ -1,6 +1,6 @@
 [project]
 name = "tmdbwrapper"
-version = "1.0.3"
+version = "1.0.4"
 description = "A wrapper package for the TMDB API."
 authors = [ { name = "squash" } ]
 license = "GPL-3.0-or-later"
