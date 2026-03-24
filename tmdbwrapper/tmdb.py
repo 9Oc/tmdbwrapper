@@ -1,11 +1,13 @@
 import asyncio
 import atexit
 import re
+from typing import Iterable
 
 import aiohttp
 import requests
 from rich import print
-from simplejustwatchapi.justwatch import details, search
+from simplejustwatchapi.justwatch import search
+from simplejustwatchapi.query import Offer
 
 from tmdbwrapper.tmdbmovie import Provider, ProviderName, TMDBMovie
 
@@ -226,7 +228,7 @@ class TMDBClient:
     def _get_justwatch_node_id(self, movie: TMDBMovie, country: str) -> str | None:
         """
         Search JustWatch for the given TMDBMovie and get its node ID.
-        Uses TMDB/IMDB for matching.
+        Uses TMDB/IMDB for matching, or title + year + runtime as a fallback.
         Returns the node ID if found, else None.
         """
         if not movie.title:
@@ -234,15 +236,15 @@ class TMDBClient:
 
         try:
             # search with title and country
-            results = search(movie.title, country.upper(), "en", count=100, best_only=False)
+            results = search(movie.title, country.upper(), "en", count=10, best_only=False)
 
             if results is None or not results:
                 return None
 
             for entry in results:
                 # check TMDB ID and IMDB ID for matching
-                imdb_match = entry.imdb_id == str(movie.imdb_id) if entry.imdb_id else False
-                tmdb_match = entry.tmdb_id == str(movie.id) if entry.tmdb_id else False
+                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
+                tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
                 if tmdb_match or imdb_match:
                     return entry.entry_id
                 release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
@@ -260,124 +262,80 @@ class TMDBClient:
 
         return None
 
-    def _get_justwatch_offers(self, node_id: str, country: str) -> list:
-        """
-        Get JustWatch offers for given node ID and country.
-        Returns a list of offers if found.
-        """
-        if not node_id or not country:
-            return []
+    def _fetch_provider_url(self, offers: Iterable[Offer], provider_name: ProviderName) -> str | None:
+        """Fetch provider URL for a given ProviderName and list of Offers."""
 
-        try:
-            # get full details for this country which includes offers
-            entry = details(node_id, country.upper(), "en", best_only=True)
-
-            if not entry or not entry.offers:
-                return []
-
-            return entry.offers
-
-        except Exception as e:
-            print(f"[red][JUSTWATCH][/red] Error getting offers for {country.upper()}: {e}")
-
-        return []
-
-    async def get_provider_url(
-        self, tmdb_movie: TMDBMovie, provider_name: ProviderName, region: str = None
-    ) -> str | None:
-        """
-        Get the URL for a specific provider for a TMDBMovie.
-        If region is specified, only that region is checked; otherwise all regions for the provider are checked.
-        """
-        if not tmdb_movie or not provider_name:
+        if not offers:
             return None
 
-        provider = tmdb_movie.get_provider(provider_name)
+        # get all possible names for the given ProviderName (canonical + aliases)
+        canonical_name = provider_name.value
+        all_names = {canonical_name.lower()}
+
+        if canonical_name in Provider.ALIASES:
+            all_names.update(Provider.ALIASES[canonical_name])
+
+        # look through offers for matching provider and return the URL if a match is found
+        for offer in offers:
+            offer_name = offer.package.name if hasattr(offer, "package") else None
+            if offer_name:
+                offer_name_lower = offer_name.lower()
+                if offer_name_lower in all_names or any(name in offer_name_lower for name in all_names):
+                    url = getattr(offer, "url", None)
+                    if url:
+                        return url
+
+        return None
+
+    def get_provider_url(self, movie: TMDBMovie, provider_name: ProviderName, region: str = None) -> str | None:
+        if not movie or not provider_name:
+            return None
+        provider = movie.get_provider(provider_name)
         if provider is None:
             return None
-
         regions = [region] if region else list(provider.regions)
-        checked_node_ids = set()
-
-        # JustWatch is synchronous, so asyncio.to_thread must be used for concurrency
-        node_semaphore = asyncio.Semaphore(2)
-        url_semaphore = asyncio.Semaphore(2)
-
-        async def fetch_node_id(region: str) -> str | None:
-            """Fetch node ID for a region."""
-            async with node_semaphore:
-                return await asyncio.to_thread(
-                    self._get_justwatch_node_id,
-                    tmdb_movie,
-                    region,
+        for r in regions:
+            try:
+                region_name = next(iter(r.keys())).upper()
+                # search with title and region to get MediaEntry's
+                print(
+                    f"Searching JustWatch for '{movie.title}' in {region_name} to find provider URL for {provider_name.value}..."
                 )
+                results = search(movie.title, region_name, "en", best_only=True)
 
-        async def fetch_provider_url(node_id: str, region: str) -> str | None:
-            """Fetch provider URL for a node_id/region."""
-            async with url_semaphore:
-                offers = await asyncio.to_thread(
-                    self._get_justwatch_offers,
-                    node_id,
-                    region,
-                )
+                if results is None or not results:
+                    return None
 
-            if not offers:
-                return None
-
-            # get all possible names for this provider (canonical + aliases)
-            canonical_name = provider_name.value
-            all_names = {canonical_name.lower()}
-
-            if canonical_name in Provider.ALIASES:
-                all_names.update(Provider.ALIASES[canonical_name])
-
-            # look through offers for matching provider
-            for offer in offers:
-                offer_name = offer.package.name if hasattr(offer, "package") else None
-                if offer_name:
-                    offer_name_lower = offer_name.lower()
-                    if offer_name_lower in all_names or any(name in offer_name_lower for name in all_names):
-                        url = getattr(offer, "url", None)
+                # check each entry for a match to the given movie
+                # if a match is found, look through offers and return the URL for the given provider
+                for entry in results:
+                    # check TMDB ID and IMDB ID for matching first
+                    imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
+                    tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
+                    if tmdb_match or imdb_match:
+                        offers = entry.offers
+                        url = self._fetch_provider_url(offers, provider_name)
                         if url:
                             return url
 
-            return None
+                    release_year_match = (
+                        entry.release_year == movie.year if entry.release_year and movie.year else False
+                    )
+                    runtime_match = (
+                        entry.runtime_minutes == int(movie.duration // 60)
+                        if entry.runtime_minutes and movie.duration
+                        else False
+                    )
+                    title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+                    if title_match and release_year_match and runtime_match:
+                        offers = entry.offers
+                        url = self._fetch_provider_url(offers, provider_name)
+                        if url:
+                            return url
+                return None
 
-        # create node fetching tasks for all regions
-        node_tasks = [asyncio.create_task(fetch_node_id(next(iter(region.keys())))) for region in regions]
-
-        try:
-            for node_task in asyncio.as_completed(node_tasks):
-                node_id = await node_task
-
-                if not node_id or node_id in checked_node_ids:
-                    continue
-
-                checked_node_ids.add(node_id)
-
-                # create tasks to fetch URLs for all regions with this node_id
-                url_tasks = [
-                    asyncio.create_task(fetch_provider_url(node_id, next(iter(region.keys())))) for region in regions
-                ]
-
-                for url_task in asyncio.as_completed(url_tasks):
-                    provider_url = await url_task
-                    if provider_url:
-                        # cancel remaining tasks if a url is found
-                        for t in node_tasks + url_tasks:
-                            if not t.done():
-                                t.cancel()
-                        return provider_url
-
-                # ensure all URL tasks are awaited/cancelled cleanly
-                for t in url_tasks:
-                    if not t.done():
-                        t.cancel()
-
-        finally:
-            for t in node_tasks:
-                if not t.done():
-                    t.cancel()
+            except Exception as e:
+                print(f"[red][JUSTWATCH][/red] Error getting offers for {region_name}: {e}")
 
         return None
 
