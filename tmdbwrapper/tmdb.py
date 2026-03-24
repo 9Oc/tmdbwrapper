@@ -298,9 +298,6 @@ class TMDBClient:
             try:
                 region_name = next(iter(r.keys())).upper()
                 # search with title and region to get MediaEntry's
-                print(
-                    f"Searching JustWatch for '{movie.title}' in {region_name} to find provider URL for {provider_name.value}..."
-                )
                 results = search(movie.title, region_name, "en", best_only=True)
 
                 if results is None or not results:
