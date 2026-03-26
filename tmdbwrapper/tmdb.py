@@ -295,8 +295,8 @@ class TMDBClient:
             return None
         regions = [region] if region else list(provider.regions)
         for r in regions:
+            region_name = region or next(iter(r.keys())).upper()
             try:
-                region_name = next(iter(r.keys())).upper()
                 # search with title and region to get MediaEntry's
                 results = search(movie.title, region_name, "en", best_only=True)
 
