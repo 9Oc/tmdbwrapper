@@ -298,9 +298,8 @@ class TMDBClient:
             region_name = region or next(iter(r.keys())).upper()
             try:
                 # search with title and region to get MediaEntry's
-                results = search(movie.title, region_name, "en", best_only=True)
-
-                if results is None or not results:
+                results = search(movie.title, region_name, "en", count=10, best_only=False)
+                if results is None:
                     return None
 
                 # check each entry for a match to the given movie
@@ -329,8 +328,6 @@ class TMDBClient:
                         url = self._fetch_provider_url(offers, provider_name)
                         if url:
                             return url
-                return None
-
             except Exception as e:
                 print(f"[red][JUSTWATCH][/red] Error getting offers for {region_name}: {e}")
 
