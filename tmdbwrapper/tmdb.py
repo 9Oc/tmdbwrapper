@@ -300,7 +300,7 @@ class TMDBClient:
                 # search with title and region to get MediaEntry's
                 results = search(movie.title, region_name, "en", count=10, best_only=False)
                 if results is None:
-                    return None
+                    continue
 
                 # check each entry for a match to the given movie
                 # if a match is found, look through offers and return the URL for the given provider
