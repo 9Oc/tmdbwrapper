@@ -140,22 +140,20 @@ class TMDBClient:
         if providers_data is not None:
             providers: list[Provider] = self._parse_providers_data(providers_data) if providers_data else []
 
-        if providers:
-            return TMDBMovie(
-                id=movie_id,
-                imdb_id=main_parsed.get("imdb_id"),
-                title=main_parsed.get("title"),
-                original_title=main_parsed.get("original_title"),
-                alternative_titles=alternative_titles,
-                year=main_parsed.get("year"),
-                duration=main_parsed.get("duration"),
-                original_language=main_parsed.get("original_language"),
-                overview=main_parsed.get("overview"),
-                genres=main_parsed.get("genres"),
-                vote_average=main_parsed.get("vote_average"),
-                providers=providers,
-            )
-        return None
+        return TMDBMovie(
+            id=movie_id,
+            imdb_id=main_parsed.get("imdb_id"),
+            title=main_parsed.get("title"),
+            original_title=main_parsed.get("original_title"),
+            alternative_titles=alternative_titles,
+            year=main_parsed.get("year"),
+            duration=main_parsed.get("duration"),
+            original_language=main_parsed.get("original_language"),
+            overview=main_parsed.get("overview"),
+            genres=main_parsed.get("genres"),
+            vote_average=main_parsed.get("vote_average"),
+            providers=providers,
+        )
 
     def _parse_movie_data(self, data: dict) -> dict | None:
         """Parse movie data from TMDB API response."""
