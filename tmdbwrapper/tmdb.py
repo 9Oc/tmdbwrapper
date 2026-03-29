@@ -86,10 +86,15 @@ class TMDBClient:
             print(f"[red][TMDB][/red] Error searching for movie: {e}")
             return None
 
-    async def get_movie(self, movie_id: str) -> TMDBMovie | None:
+    async def get_movie(self, movie_id: str, get_alternative_titles: bool = False) -> TMDBMovie | None:
         """
         Build a TMDBMovie object from TMDB API data for the given movie ID.
-        Returns None if the movie could not be found or an error occurred.
+
+        Args:
+            movie_id (str): The TMDB movie ID to fetch data for.
+            get_alternative_titles (bool): Whether to fetch alternative titles data (additional API call cost). Defaults to False.
+        Returns:
+            TMDBMovie object if the movie is found, otherwise None.
         """
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
         alternative_titles_url = f"https://api.themoviedb.org/3/movie/{movie_id}/alternative_titles"
@@ -107,29 +112,35 @@ class TMDBClient:
                     ) as response:
                         response.raise_for_status()
                         return await response.json()
+                except aiohttp.ClientResponseError as e:
+                    if e.status == 404:
+                        # if the movie is not found, return None without retrying
+                        return None
                 except Exception:
-                    if attempt == retries:
+                    if attempt >= retries:
                         raise
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.5)
 
-        try:
-            main_task = fetch_with_retry(movie_url, params)
-            alt_task = fetch_with_retry(alternative_titles_url, params)
-            providers_task = fetch_with_retry(watch_providers_url, params)
+        async def _none():
+            return None
 
-            main_data, alt_data, providers_data = await asyncio.gather(main_task, alt_task, providers_task)
+        main_task = fetch_with_retry(movie_url, params)
+        alt_task = fetch_with_retry(alternative_titles_url, params) if get_alternative_titles else _none()
+        providers_task = fetch_with_retry(watch_providers_url, params)
 
-            if main_data is None:
-                return None
+        main_data, alt_data, providers_data = await asyncio.gather(main_task, alt_task, providers_task)
+        if main_data is None or providers_data is None:
+            return None
 
-            main_parsed = self._parse_movie_data(main_data)
+        main_parsed = self._parse_movie_data(main_data)
 
-            alternative_titles = self._parse_alternative_titles_data(alt_data) if alt_data else []
+        alternative_titles = self._parse_alternative_titles_data(alt_data) if alt_data else []
 
-            providers: list[Provider] = []
-            if providers_data is not None:
-                providers: list[Provider] = self._parse_providers_data(providers_data) if providers_data else []
+        providers: list[Provider] = []
+        if providers_data is not None:
+            providers: list[Provider] = self._parse_providers_data(providers_data) if providers_data else []
 
+        if providers:
             return TMDBMovie(
                 id=movie_id,
                 imdb_id=main_parsed.get("imdb_id"),
@@ -144,10 +155,7 @@ class TMDBClient:
                 vote_average=main_parsed.get("vote_average"),
                 providers=providers,
             )
-
-        except Exception as e:
-            print(f"[red][TMDB][/red] Error building TMDBMovie object: {e}")
-            return None
+        return None
 
     def _parse_movie_data(self, data: dict) -> dict | None:
         """Parse movie data from TMDB API response."""
