@@ -348,30 +348,43 @@ class TMDBClient:
 
         session = await self._get_session()
 
-        try:
-            async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                response.raise_for_status()
-                data = await response.json()
+        async def fetch_with_retry(url: str, params: dict, timeout: int = 15, retries: int = 1) -> dict | None:
+            """Fetch json response from given URL with retry."""
+            for attempt in range(retries + 1):
+                try:
+                    async with session.get(
+                        url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)
+                    ) as response:
+                        response.raise_for_status()
+                        return await response.json()
+                except aiohttp.ClientResponseError as e:
+                    if e.status == 404:
+                        # if the movie is not found, return None without retrying
+                        return None
+                except Exception:
+                    if attempt >= retries:
+                        raise
+                    await asyncio.sleep(0.5)
 
-            results = data.get("results", {})
-            buckets: dict[str, Provider] = {}
+        data = await fetch_with_retry(url, params)
+        if data is None:
+            return None
 
-            for region_code, info in results.items():
-                for key in ("buy", "rent", "flatrate", "free"):
-                    for item in info.get(key, []) or []:
-                        provider_name = item.get("provider_name")
-                        if not provider_name:
-                            continue
-                        canonical = Provider.normalize_name(provider_name)
-                        bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
-                        bucket.names.add(provider_name)
-                        bucket.regions.append({region_code.lower(): key})
+        results = data.get("results", {})
+        buckets: dict[str, Provider] = {}
 
-            return list(buckets.values())
+        for region_code, info in results.items():
+            for key in ("buy", "rent", "flatrate", "free"):
+                for item in info.get(key, []) or []:
+                    provider_name = item.get("provider_name")
+                    if not provider_name:
+                        continue
+                    canonical = Provider.normalize_name(provider_name)
+                    bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
+                    bucket.names.add(provider_name)
+                    bucket.regions.append({region_code.lower(): key})
 
-        except Exception as e:
-            print(f"[TMDB] Error getting watch/providers for ID {tmdb_id}: {e}")
-            return []
+        return list(buckets.values())
 
 
 def _cleanup_clients():
