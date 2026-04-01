@@ -286,7 +286,7 @@ class TMDBClient:
             offer_name = offer.package.name if hasattr(offer, "package") else None
             if offer_name:
                 offer_name_lower = offer_name.lower()
-                if offer_name_lower in all_names or any(name in offer_name_lower for name in all_names):
+                if any(name == offer_name_lower for name in all_names):
                     url = getattr(offer, "url", None)
                     if url:
                         return url
