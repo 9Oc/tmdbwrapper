@@ -5,6 +5,7 @@ from typing import Iterable
 
 import aiohttp
 import requests
+from aiohttp_socks import ProxyConnector
 from rich import print
 from simplejustwatchapi.justwatch import search
 from simplejustwatchapi.query import Offer
@@ -15,15 +16,19 @@ _active_clients = []
 
 
 class TMDBClient:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, proxy: str | None = None):
         self.api_key = api_key
+        self.proxy = proxy
         self._session: aiohttp.ClientSession | None = None
         _active_clients.append(self)
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create the aiohttp session."""
         if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession()
+            aiohttp_kwargs = {"timeout": aiohttp.ClientTimeout(total=30)}
+            if self.proxy:
+                aiohttp_kwargs["connector"] = ProxyConnector.from_url(self.proxy.replace(r"socks5h://", r"socks5://"))
+            self._session = aiohttp.ClientSession(**aiohttp_kwargs)
         return self._session
 
     async def close(self):
@@ -58,7 +63,7 @@ class TMDBClient:
             params["region"] = region
 
         try:
-            r = requests.get(url, params=params, timeout=10)
+            r = requests.get(url, params=params, timeout=15)
             r.raise_for_status()
             data = r.json()
             results = data.get("results", [])

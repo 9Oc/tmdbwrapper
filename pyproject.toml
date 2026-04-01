@@ -1,14 +1,14 @@
 [project]
 name = "tmdbwrapper"
-version = "1.0.10"
+version = "1.0.11"
 description = "A wrapper package for the TMDB API."
 authors = [ { name = "squash" } ]
 license = "GPL-3.0-or-later"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "aiohttp",
-  "requests",
+  "aiohttp-socks",
+  "requests[socks]",
   "rich",
   "simple-justwatch-python-api",
 ]
