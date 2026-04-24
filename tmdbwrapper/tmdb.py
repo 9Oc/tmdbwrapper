@@ -62,34 +62,30 @@ class TMDBClient:
         if region:
             params["region"] = region
 
-        try:
-            r = requests.get(url, params=params, timeout=15)
-            r.raise_for_status()
-            data = r.json()
-            results = data.get("results", [])
+        r = requests.get(url, params=params, timeout=15)
+        r.raise_for_status()
+        data = r.json()
+        results = data.get("results", [])
 
-            if not results:
-                return None
-            # limit concurrency to avoid rate limiting
-            sem = asyncio.Semaphore(10)
-
-            async def sem_get_movie(movie_id: str):
-                async with sem:
-                    return await self.get_movie(movie_id)
-
-            # create tasks only for results that have an id
-            tasks = [asyncio.create_task(sem_get_movie(str(r["id"]))) for r in results if r.get("id") is not None]
-            if not tasks:
-                return None
-
-            movies = await asyncio.gather(*tasks)
-            # filter out None results (failed fetches)
-            movies = [m for m in movies if m is not None]
-
-            return movies if movies else None
-        except Exception as e:
-            print(f"[red][TMDB][/red] Error searching for movie: {e}")
+        if not results:
             return None
+        # limit concurrency to avoid rate limiting
+        sem = asyncio.Semaphore(10)
+
+        async def sem_get_movie(movie_id: str):
+            async with sem:
+                return await self.get_movie(movie_id)
+
+        # create tasks only for results that have an id
+        tasks = [asyncio.create_task(sem_get_movie(str(r["id"]))) for r in results if r.get("id") is not None]
+        if not tasks:
+            return None
+
+        movies = await asyncio.gather(*tasks)
+        # filter out None results (failed fetches)
+        movies = [m for m in movies if m is not None]
+
+        return movies if movies else []
 
     async def get_movie(self, movie_id: str, get_alternative_titles: bool = False) -> TMDBMovie | None:
         """
@@ -108,30 +104,17 @@ class TMDBClient:
 
         session = await self._get_session()
 
-        async def fetch_with_retry(url: str, params: dict, timeout: int = 15, retries: int = 1) -> dict | None:
-            """Fetch json response from given URL with retry."""
-            for attempt in range(retries + 1):
-                try:
-                    async with session.get(
-                        url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)
-                    ) as response:
-                        response.raise_for_status()
-                        return await response.json()
-                except aiohttp.ClientResponseError as e:
-                    if e.status == 404:
-                        # if the movie is not found, return None without retrying
-                        return None
-                except Exception:
-                    if attempt >= retries:
-                        raise
-                    await asyncio.sleep(0.5)
+        async def _fetch(url: str, params: dict, timeout: int = 15) -> dict | None:
+            async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
+                response.raise_for_status()
+                return await response.json()
 
         async def _none():
             return None
 
-        main_task = fetch_with_retry(movie_url, params)
-        alt_task = fetch_with_retry(alternative_titles_url, params) if get_alternative_titles else _none()
-        providers_task = fetch_with_retry(watch_providers_url, params)
+        main_task = _fetch(movie_url, params)
+        alt_task = _fetch(alternative_titles_url, params) if get_alternative_titles else _none()
+        providers_task = _fetch(watch_providers_url, params)
 
         main_data, alt_data, providers_data = await asyncio.gather(main_task, alt_task, providers_task)
         if main_data is None or providers_data is None:
@@ -245,53 +228,51 @@ class TMDBClient:
         if not movie.title:
             return None
 
-        try:
-            # search with title and country
-            results = search(movie.title, country.upper(), "en", count=10, best_only=False)
+        # search with title and country
+        results = search(movie.title, country.upper(), "en", count=10, best_only=False)
 
-            if results is None or not results:
-                return None
+        if results is None or not results:
+            return None
 
-            for entry in results:
-                # check TMDB ID and IMDB ID for matching
-                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
-                tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
-                if tmdb_match or imdb_match:
-                    return entry.entry_id
-                release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
-                runtime_match = (
-                    entry.runtime_minutes == int(movie.duration // 60)
-                    if entry.runtime_minutes and movie.duration
-                    else False
-                )
-                title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
-                if title_match and release_year_match and runtime_match:
-                    return entry.entry_id
-
-        except Exception as e:
-            print(f"[red][JUSTWATCH][/red] Error searching for movie in {country.upper()}: {e}")
+        for entry in results:
+            if not entry:
+                continue
+            # check TMDB ID and IMDB ID for matching
+            imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
+            tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
+            if tmdb_match or imdb_match:
+                return entry.entry_id
+            release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
+            runtime_match = (
+                entry.runtime_minutes == int(movie.duration // 60)
+                if entry.runtime_minutes and movie.duration
+                else False
+            )
+            title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+            if title_match and release_year_match and runtime_match:
+                return entry.entry_id
 
         return None
 
     def _fetch_provider_url(self, offers: Iterable[Offer], provider_name: ProviderName) -> str | None:
         """Fetch provider URL for a given ProviderName and list of Offers."""
 
-        if not offers:
+        if not offers or not provider_name:
             return None
 
         # get all possible names for the given ProviderName (canonical + aliases)
         canonical_name = provider_name.value
-        all_names = {canonical_name.lower()}
+        all_provider_names = {canonical_name.lower()}
 
         if canonical_name in Provider.ALIASES:
-            all_names.update(Provider.ALIASES[canonical_name])
+            all_provider_names.update(Provider.ALIASES[canonical_name])
 
         # look through offers for matching provider and return the URL if a match is found
         for offer in offers:
             offer_name = offer.package.name if hasattr(offer, "package") else None
             if offer_name:
                 offer_name_lower = offer_name.lower()
-                if any(name == offer_name_lower for name in all_names):
+                if any(provider_name == offer_name_lower for provider_name in all_provider_names):
                     url = getattr(offer, "url", None)
                     if url:
                         return url
@@ -307,40 +288,37 @@ class TMDBClient:
         regions = [region] if region else list(provider.regions)
         for r in regions:
             region_name = region or next(iter(r.keys())).upper()
-            try:
-                # search with title and region to get MediaEntry's
-                results = search(movie.title, region_name, "en", count=10, best_only=False)
-                if results is None:
+            # search with title and region to get MediaEntry's
+            results = search(movie.title, region_name, "en", count=10, best_only=False)
+            if results is None:
+                continue
+
+            # check each entry for a match to the given movie
+            # if a match is found, look through offers and return the URL for the given provider
+            for entry in results:
+                if not entry:
                     continue
+                # check TMDB ID and IMDB ID for matching first
+                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
+                tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
+                if tmdb_match or imdb_match:
+                    offers = entry.offers
+                    url = self._fetch_provider_url(offers, provider_name)
+                    if url:
+                        return url
 
-                # check each entry for a match to the given movie
-                # if a match is found, look through offers and return the URL for the given provider
-                for entry in results:
-                    # check TMDB ID and IMDB ID for matching first
-                    imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
-                    tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
-                    if tmdb_match or imdb_match:
-                        offers = entry.offers
-                        url = self._fetch_provider_url(offers, provider_name)
-                        if url:
-                            return url
-
-                    release_year_match = (
-                        entry.release_year == movie.year if entry.release_year and movie.year else False
-                    )
-                    runtime_match = (
-                        entry.runtime_minutes == int(movie.duration // 60)
-                        if entry.runtime_minutes and movie.duration
-                        else False
-                    )
-                    title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
-                    if title_match and release_year_match and runtime_match:
-                        offers = entry.offers
-                        url = self._fetch_provider_url(offers, provider_name)
-                        if url:
-                            return url
-            except Exception as e:
-                print(f"[red][JUSTWATCH][/red] Error getting offers for {region_name}: {e}")
+                release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
+                runtime_match = (
+                    entry.runtime_minutes == int(movie.duration // 60)
+                    if entry.runtime_minutes and movie.duration
+                    else False
+                )
+                title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+                if title_match and release_year_match and runtime_match:
+                    offers = entry.offers
+                    url = self._fetch_provider_url(offers, provider_name)
+                    if url:
+                        return url
 
         return None
 
@@ -353,7 +331,7 @@ class TMDBClient:
 
         session = await self._get_session()
 
-        async def fetch_with_retry(url: str, params: dict, timeout: int = 15, retries: int = 1) -> dict | None:
+        async def fetch_with_retry(url: str, params: dict, timeout: int = 15, retries: int = 3) -> dict | None:
             """Fetch json response from given URL with retry."""
             for attempt in range(retries + 1):
                 try:
@@ -369,7 +347,7 @@ class TMDBClient:
                 except Exception:
                     if attempt >= retries:
                         raise
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(1)
 
         data = await fetch_with_retry(url, params)
         if data is None:
