@@ -106,8 +106,13 @@ class TMDBClient:
 
         async def _fetch(url: str, params: dict, timeout: int = 15) -> dict | None:
             async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-                response.raise_for_status()
-                return await response.json()
+                try:
+                    response.raise_for_status()
+                    return await response.json()
+                except aiohttp.ClientResponseError as e:
+                    if e.status == 404:
+                        return None
+                    raise
 
         async def _none():
             return None
@@ -137,6 +142,7 @@ class TMDBClient:
             year=main_parsed.get("year"),
             duration=main_parsed.get("duration"),
             original_language=main_parsed.get("original_language"),
+            spoken_languages=main_parsed.get("spoken_languages"),
             overview=main_parsed.get("overview"),
             genres=main_parsed.get("genres"),
             vote_average=main_parsed.get("vote_average"),
@@ -148,10 +154,10 @@ class TMDBClient:
         if not data:
             return None
 
-        imdb_id = data.get("imdb_id") or None
-        title = data.get("title") or None
-        original_title = data.get("original_title") or None
-        duration = data.get("runtime") or None
+        imdb_id: str = data.get("imdb_id") or None
+        title: str = data.get("title") or None
+        original_title: str = data.get("original_title") or None
+        duration: int = data.get("runtime") or None
         if duration:
             duration = duration * 60  # convert duration to seconds
 
@@ -162,15 +168,20 @@ class TMDBClient:
             if match:
                 year = int(match.group(1))
 
-        original_language = data.get("original_language") or None
+        original_language: str = data.get("original_language") or None
+        spoken_languages: list[str] = []
+        for spoken_lang in data.get("spoken_languages", []):
+            lang_code = spoken_lang.get("iso_639_1")
+            if lang_code:
+                spoken_languages.append(lang_code.lower())
 
         genre_objects = data.get("genres") or []
         genres: list[str] = []
         for genre in genre_objects:
             genres.append(genre.get("name") or None)
 
-        overview = data.get("overview") or None
-        vote_average = data.get("vote_average") or None
+        overview: str = data.get("overview") or None
+        vote_average: float = data.get("vote_average") or None
 
         return {
             "imdb_id": imdb_id,
@@ -179,6 +190,7 @@ class TMDBClient:
             "year": year,
             "duration": duration,
             "original_language": original_language,
+            "spoken_languages": spoken_languages,
             "genres": genres,
             "overview": overview,
             "vote_average": vote_average,
@@ -207,7 +219,7 @@ class TMDBClient:
         buckets: dict[str, Provider] = {}
 
         for region_code, info in results.items():
-            for key in ("buy", "rent", "flatrate", "free"):
+            for key in ("buy", "rent", "flatrate", "free", "ads"):
                 for item in info.get(key, []) or []:
                     provider_name = item.get("provider_name")
                     if not provider_name:
@@ -290,7 +302,7 @@ class TMDBClient:
             region_name = region or next(iter(r.keys())).upper()
             # search with title and region to get MediaEntry's
             results = search(movie.title, region_name, "en", count=10, best_only=False)
-            if results is None:
+            if not results:
                 continue
 
             # check each entry for a match to the given movie
@@ -298,11 +310,11 @@ class TMDBClient:
             for entry in results:
                 if not entry:
                     continue
+                offers = entry.offers
                 # check TMDB ID and IMDB ID for matching first
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
                 if tmdb_match or imdb_match:
-                    offers = entry.offers
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
@@ -315,7 +327,6 @@ class TMDBClient:
                 )
                 title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
                 if title_match and release_year_match and runtime_match:
-                    offers = entry.offers
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
@@ -331,43 +342,22 @@ class TMDBClient:
 
         session = await self._get_session()
 
-        async def fetch_with_retry(url: str, params: dict, timeout: int = 15, retries: int = 3) -> dict | None:
+        async def fetch(url: str, params: dict, timeout: int = 15) -> dict | None:
             """Fetch json response from given URL with retry."""
-            for attempt in range(retries + 1):
-                try:
-                    async with session.get(
-                        url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)
-                    ) as response:
-                        response.raise_for_status()
-                        return await response.json()
-                except aiohttp.ClientResponseError as e:
-                    if e.status == 404:
-                        # if the movie is not found, return None without retrying
-                        return None
-                except Exception:
-                    if attempt >= retries:
-                        raise
-                    await asyncio.sleep(1)
+            try:
+                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
+                    response.raise_for_status()
+                    return await response.json()
+            except aiohttp.ClientResponseError as e:
+                if e.status == 404:
+                    # if the movie is not found, return None without retrying
+                    return None
+                raise
 
-        data = await fetch_with_retry(url, params)
-        if data is None:
+        data = await fetch(url, params)
+        if not data:
             return None
-
-        results = data.get("results", {})
-        buckets: dict[str, Provider] = {}
-
-        for region_code, info in results.items():
-            for key in ("buy", "rent", "flatrate", "free"):
-                for item in info.get(key, []) or []:
-                    provider_name = item.get("provider_name")
-                    if not provider_name:
-                        continue
-                    canonical = Provider.normalize_name(provider_name)
-                    bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
-                    bucket.names.add(provider_name)
-                    bucket.regions.append({region_code.lower(): key})
-
-        return list(buckets.values())
+        return self._parse_providers_data(data)
 
 
 def _cleanup_clients():

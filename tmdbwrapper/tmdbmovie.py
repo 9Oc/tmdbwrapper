@@ -1,3 +1,4 @@
+import os
 import re
 from dataclasses import dataclass, field
 from enum import Enum
@@ -662,26 +663,28 @@ class TMDBMovie:
     def __init__(
         self,
         id: str,
-        imdb_id: str,
+        imdb_id: str | None,
         title: str,
-        original_title: str | None,
-        alternative_titles: dict[str, str],
-        year: int,
-        duration: int | None,
-        original_language: str | None,
-        genres: list[str] | None,
-        overview: str | None,
-        vote_average: float | None,
-        providers: list[Provider] | None,
+        year: int | None = None,
+        original_title: str | None = None,
+        alternative_titles: dict[str, str] = None,
+        duration: int | None = None,
+        original_language: str | None = None,
+        spoken_languages: list[str | None] = [],
+        genres: list[str | None] = None,
+        overview: str | None = None,
+        vote_average: float | None = None,
+        providers: list[Provider] = [],
     ):
         self.id = id
         self.imdb_id = imdb_id
         self.title = title
+        self.year = year
         self.original_title = original_title
         self.alternative_titles = alternative_titles
-        self.year = year
         self.duration = duration
         self.original_language = original_language
+        self.spoken_languages = spoken_languages
         self.genres = genres
         self.overview = overview
         self.vote_average = vote_average
@@ -704,20 +707,44 @@ class TMDBMovie:
         return None
 
     @staticmethod
-    def sanitize(text: str) -> str:
-        """Return a filesystem-safe version of a string."""
+    def sanitize(text: str, folder: bool = False) -> str:
+        """
+        Sanitizes a string to be safe for use as a file or folder name on Windows/macOS/Linux.
+
+        Args:
+            text (str): The string to sanitize.
+            folder (bool): Whether the string is intended to be a folder name or filename. Defaults to False.
+        Returns:
+            str: The sanitized string, or an empty string if the input was Falsey.
+        """
         if not text:
             return ""
-        text = re.sub(r'[\/\\:\*\?"<>\|\-—·.,^]+', "", text)
-        text = re.sub(r"\s+", " ", text)
-        return text.strip()
+        s = re.sub(r'[\x00-\x1f<>:"/\\|?*\x7f\xa0]+', " ", text).strip()  # strip invalid chars for Windows/macOS/Linux
+        if folder:
+            s = re.sub(r"\s+", " ", s)
+            s = re.sub(r"[‐–—⁃]", "-", s)  # replace bad hyphens
+        else:
+            s = s.replace("…", ".")
+            s = re.sub(r"\s+", ".", s)
+            s = re.sub(r"\.+", ".", s)
+            s = s.strip(".")
+            s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # fix bad hyphen types
+            s = s.replace(",.", ".")
+        if os.name == "nt":
+            s = TMDBMovie.make_windows_safe(s)
+        return s.strip() or ""
 
     @staticmethod
-    def make_windows_safe(text: str, delimiter: str = " ") -> str:
+    def make_windows_safe(text: str) -> str:
         """
-        Sanitize a movie name to be safe for Windows filenames.
+        Sanitize Windows reserved device names from a string.
         Appends '_' to any reserved Windows device names (CON, PRN, AUX, NUL, COM1-COM9, LPT1-LPT9)
-        while keeping the rest of the name intact.
+        if they would cause an OSError to be thrown by the filesystem.
+
+        Args:
+            text (str): The input string to sanitize.
+        Returns:
+            str: The sanitized string with reserved names modified to be safe for Windows file names.
         """
         # fmt: off
         reserved_names = {
@@ -726,9 +753,8 @@ class TMDBMovie:
             "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
         }
         # fmt: on
-
         # split by dot to check each component
-        parts = text.split(delimiter)
-        if parts and parts[0].upper() in reserved_names:
+        parts = text.split(".", 1)
+        if parts and parts[0].rstrip(" .").upper() in reserved_names:
             parts[0] += "_"
-        return delimiter.join(parts)
+        return ".".join(parts)
