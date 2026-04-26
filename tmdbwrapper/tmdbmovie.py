@@ -26,6 +26,7 @@ class ProviderName(Enum):
     AMC_PLUS_APPLE_TV_CHANNEL = "AMC Plus Apple TV Channel"
     AMC_PLUS_ROKU_PREMIUM_CHANNEL = "AMC+ Roku Premium Channel"
     APPLE_TV = "Apple TV"
+    APPLE_TV_PLUS = "Apple TV+"
     ARD_PLUS = "ARD Plus"
     ARD_PLUS_AMAZON_CHANNEL = "ARD Plus Amazon channel"
     ARD_PLUS_APPLE_TV_CHANNEL = "ARD Plus Apple TV channel"
@@ -309,7 +310,12 @@ class Provider:
         ProviderName.ALLENTE.value: {"allente"},
         ProviderName.ALLESKINO.value: {"alleskino"},
         ProviderName.ALLESKINO_AMAZON_CHANNEL.value: {"alleskino amazon channel"},
-        ProviderName.AMAZON_PRIME_VIDEO.value: {"amazon video", "amazon prime video", "amazon prime video with ads"},
+        ProviderName.AMAZON_PRIME_VIDEO.value: {
+            "amazon video",
+            "amazon prime video",
+            "amazon prime video with ads",
+            "amazon prime video free with ads",
+        },
         ProviderName.AMC.value: {"amc"},
         ProviderName.AMC_CHANNELS_AMAZON_CHANNEL.value: {"amc channels amazon channel"},
         ProviderName.AMC_PLUS.value: {"amc+"},
@@ -320,6 +326,7 @@ class Provider:
             "amc plus roku premium channel",
         },
         ProviderName.APPLE_TV.value: {"apple tv", "apple tv store"},
+        ProviderName.APPLE_TV_PLUS.value: {"apple tv+", "apple tv plus"},
         ProviderName.ARD_PLUS.value: {"ard plus", "ard+"},
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},
