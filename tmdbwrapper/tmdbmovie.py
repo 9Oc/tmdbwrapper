@@ -6,7 +6,7 @@ from typing import ClassVar
 
 
 class ProviderName(Enum):
-    """Canonical provider names with autocomplete support."""
+    """Canonical provider names."""
 
     ABC_IVIEW = "ABC iview"
     ACONTRA_PLUS = "Acontra Plus"
@@ -30,6 +30,7 @@ class ProviderName(Enum):
     ARD_PLUS = "ARD Plus"
     ARD_PLUS_AMAZON_CHANNEL = "ARD Plus Amazon channel"
     ARD_PLUS_APPLE_TV_CHANNEL = "ARD Plus Apple TV channel"
+    ARTE_BOUTIQUE = "ARTE Boutique"
     ARTHOUSE_CNMA = "ArthouseCNMA"
     ARTHOUSE_CNMA_AMAZON_CHANNEL = "Arthouse CNMA Amazon Channel"
     ASIANCRUSH = "AsianCrush"
@@ -108,6 +109,7 @@ class ProviderName(Enum):
     FLIXOLE = "FlixOlé"
     FLIXOLE_AMAZON_CHANNEL = "FlixOlé Amazon Channel"
     FLIXOLE_APPLE_TV_CHANNEL = "FlixOlé Apple TV Channel"
+    FOD = "FOD"
     FOD_CHANNEL_AMAZON_CHANNEL = "FOD Channel Amazon Channel"
     FOXTEL_NOW = "Foxtel Now"
     FREENET_MEINVOD = "Freenet meinVOD"
@@ -137,6 +139,7 @@ class ProviderName(Enum):
     HUNGAMA_PLAY = "Hungama Play"
     ICITOUTV = "iciTouTV"
     IFLIX = "iflix"
+    INFINITY_SELECTION_AMAZON_CHANNEL = "Infinity Selection Amazon Channel"
     ITVX_PREMIUM = "ITVX Premium"
     IWONDER_FULL_AMAZON_CHANNEL = "iWonder Full Amazon Channel"
     JIOHOTSTAR = "JioHotstar"
@@ -146,6 +149,7 @@ class ProviderName(Enum):
     KANOPY = "Kanopy"
     KINO_ON_DEMAND = "Kino on Demand"
     KINOPOISK = "Kinopoisk"
+    KIRJASTOKINO = "Kirjastokino"
     KPN = "KPN"
     LACINETEK = "LaCinetek"
     LEPSI_TV = "Lepsi TV"
@@ -196,6 +200,7 @@ class ProviderName(Enum):
     PATHE_THUIS = "Pathé Thuis"
     PEACOCK = "Peacock"
     PHILO = "Philo"
+    PILOT_WP = "Pilot WP"
     PLAYER = "Player"
     PLEX = "Plex"
     PLEX_CHANNEL = "Plex Channel"
@@ -288,6 +293,7 @@ class ProviderName(Enum):
     YOUTUBE = "YouTube"
     YOUTUBE_PREMIUM = "YouTube Premium"
     YOUTUBE_TV = "YouTube TV"
+    VI_MOVIES_AND_TV = "VI movies and tv"
     VOYO = "Voyo"
     ZDF = "ZDF"
     ZEE5 = "Zee5"
@@ -296,7 +302,7 @@ class ProviderName(Enum):
 @dataclass
 class Provider:
     canonical_name: str
-    names: set[str] = field(default_factory=set)  # observed names
+    names: set[str] = field(default_factory=set)  # observed aliases
     regions: list[dict[str, str]] = field(default_factory=list)  # region code, type (flatrate, rent, buy, ads)
 
     ALIASES: ClassVar[dict[str, set[str]]] = {
@@ -330,6 +336,7 @@ class Provider:
         ProviderName.ARD_PLUS.value: {"ard plus", "ard+"},
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},
+        ProviderName.ARTE_BOUTIQUE.value: {"arte boutique"},
         ProviderName.ARTHOUSE_CNMA.value: {"arthouse cnma", "arthousecnma"},
         ProviderName.ARTHOUSE_CNMA_AMAZON_CHANNEL.value: {"arthouse cnma amazon channel"},
         ProviderName.ASIANCRUSH.value: {"asiancrush"},
@@ -401,7 +408,7 @@ class Provider:
         ProviderName.DRAKEN_FILMS.value: {"draken films"},
         ProviderName.ELISA_VIIHDE.value: {"elisa viihde"},
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
-        ProviderName.FANDANGO_AT_HOME.value: {"fandango at home"},
+        ProviderName.FANDANGO_AT_HOME.value: {"fandango at home", "fandango at home free"},
         ProviderName.FANDOR_AMAZON_CHANNEL.value: {"fandor amazon channel"},
         ProviderName.FAR_EAST_AMAZON_CHANNEL.value: {"far east amazon channel"},
         ProviderName.FAWESOME.value: {"fawesome"},
@@ -417,6 +424,7 @@ class Provider:
         ProviderName.FLIXOLE.value: {"flixolé", "flixole"},
         ProviderName.FLIXOLE_AMAZON_CHANNEL.value: {"flixolé amazon channel", "flixole amazon channel"},
         ProviderName.FLIXOLE_APPLE_TV_CHANNEL.value: {"flixolé apple tv channel", "flixole apple tv channel"},
+        ProviderName.FOD.value: {"fod"},
         ProviderName.FOD_CHANNEL_AMAZON_CHANNEL.value: {"fod channel amazon channel"},
         ProviderName.FOXTEL_NOW.value: {"foxtel now"},
         ProviderName.FREENET_MEINVOD.value: {"freenet meinvod"},
@@ -446,15 +454,17 @@ class Provider:
         ProviderName.HUNGAMA_PLAY.value: {"hungama play"},
         ProviderName.ICITOUTV.value: {"icitoutv"},
         ProviderName.IFLIX.value: {"iflix"},
+        ProviderName.INFINITY_SELECTION_AMAZON_CHANNEL.value: {"infinity selection amazon channel"},
         ProviderName.ITVX_PREMIUM.value: {"itvx premium"},
         ProviderName.IWONDER_FULL_AMAZON_CHANNEL.value: {"iwonder full amazon channel"},
         ProviderName.JIOHOTSTAR.value: {"jiohotstar"},
         ProviderName.JOYN.value: {"joyn"},
         ProviderName.JOYN_PLUS.value: {"joyn plus", "joyn+"},
-        ProviderName.JUSTWATCHTV.value: {"justwatchtv"},
+        ProviderName.JUSTWATCHTV.value: {"justwatchtv", "justwatch tv"},
         ProviderName.KANOPY.value: {"kanopy"},
         ProviderName.KINO_ON_DEMAND.value: {"kino on demand"},
         ProviderName.KINOPOISK.value: {"kinopoisk"},
+        ProviderName.KIRJASTOKINO.value: {"kirjastokino"},
         ProviderName.KPN.value: {"kpn"},
         ProviderName.LACINETEK.value: {"lacinetek"},
         ProviderName.LEPSI_TV.value: {"lepsi tv"},
@@ -526,6 +536,7 @@ class Provider:
         ProviderName.PATHE_THUIS.value: {"pathé thuis", "pathe thuis"},
         ProviderName.PEACOCK.value: {"peacock", "peacock premium", "peacock premium plus"},
         ProviderName.PHILO.value: {"philo"},
+        ProviderName.PILOT_WP.value: {"pilot wp"},
         ProviderName.PLAYER.value: {"player"},
         ProviderName.PLEX.value: {"plex"},
         ProviderName.PLEX_CHANNEL.value: {"plex channel"},
@@ -618,6 +629,7 @@ class Provider:
         ProviderName.YOUTUBE.value: {"youtube"},
         ProviderName.YOUTUBE_PREMIUM.value: {"youtube premium"},
         ProviderName.YOUTUBE_TV.value: {"youtube tv"},
+        ProviderName.VI_MOVIES_AND_TV.value: {"vi movies and tv"},
         ProviderName.VOYO.value: {"voyo"},
         ProviderName.ZDF.value: {"zdf"},
         ProviderName.ZEE5.value: {"zee5"},

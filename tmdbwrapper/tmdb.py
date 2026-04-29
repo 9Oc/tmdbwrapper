@@ -51,6 +51,13 @@ class TMDBClient:
         Search the TMDB search endpoint with a query.
         Optionally provide a year and/or region to narrow results.
         Returns a list of TMDBMovie objects.
+
+        Args:
+            query (str): The search query.
+            year (int | None): The year to filter results by. Defaults to None.
+            region (str | None): The region to filter results by. Defaults to None.
+        Returns:
+            list[TMDBMovie] | None: A list of TMDBMovie objects if results are found, otherwise None.
         """
         url = "https://api.themoviedb.org/3/search/movie"
         params = {
@@ -60,7 +67,7 @@ class TMDBClient:
         if year:
             params["year"] = year
         if region:
-            params["region"] = region
+            params["region"] = region.lower()
 
         r = requests.get(url, params=params, timeout=15)
         r.raise_for_status()
@@ -95,7 +102,7 @@ class TMDBClient:
             movie_id (str): The TMDB movie ID to fetch data for.
             get_alternative_titles (bool): Whether to fetch alternative titles data (additional API call cost). Defaults to False.
         Returns:
-            TMDBMovie object if the movie is found, otherwise None.
+            TMDBMovie | None: The TMDBMovie object if the movie is found, otherwise None.
         """
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
         alternative_titles_url = f"https://api.themoviedb.org/3/movie/{movie_id}/alternative_titles"
@@ -150,7 +157,14 @@ class TMDBClient:
         )
 
     def _parse_movie_data(self, data: dict) -> dict | None:
-        """Parse movie data from TMDB API response."""
+        """
+        Parse movie data from TMDB API response and return a dictionary of movie attributes.
+
+        Args:
+            data (dict): The raw JSON from the TMDB API response for a movie.
+        Returns:
+            dict | None: A dict of the movie attributes.
+        """
         if not data:
             return None
 
@@ -197,6 +211,14 @@ class TMDBClient:
         }
 
     def _parse_alternative_titles_data(self, data: dict) -> list[dict]:
+        """
+        Parse alternative titles data from TMDB API response and return a list of alternative titles.
+
+        Args:
+            data (dict): The raw JSON from the TMDB API response for alternative titles.
+        Returns:
+            list[dict]: A list of alternative titles for the movie.
+        """
         alternative_titles = []
         if data:
             for t in data.get("titles", []):
@@ -204,7 +226,7 @@ class TMDBClient:
                 if not alt_title:
                     continue
 
-                region = t.get("iso_3166_1").lower()
+                region = t.get("iso_3166_1", "unknown").lower()
                 alternative_titles.append(
                     {
                         "region": region,
@@ -215,6 +237,14 @@ class TMDBClient:
         return alternative_titles
 
     def _parse_providers_data(self, data: dict) -> list[Provider]:
+        """
+        Parse watch providers data from TMDB API response and return a list of Provider objects.
+
+        Args:
+            data (dict): The raw JSON from the TMDB API response for watch providers.
+        Returns:
+            list[Provider]: A list of Provider objects for the movie.
+        """
         results = data.get("results", {})
         buckets: dict[str, Provider] = {}
 
@@ -227,7 +257,9 @@ class TMDBClient:
                     canonical = Provider.normalize_name(provider_name)
                     bucket = buckets.setdefault(canonical, Provider(canonical_name=canonical))
                     bucket.names.add(provider_name)
-                    bucket.regions.append({region_code.lower(): key})
+                    region_entry = {region_code.lower(): key}
+                    if not any(region_entry == existing for existing in bucket.regions):
+                        bucket.regions.append(region_entry)
 
         return list(buckets.values())
 
@@ -284,14 +316,26 @@ class TMDBClient:
             offer_name = offer.package.name if hasattr(offer, "package") else None
             if offer_name:
                 offer_name_lower = offer_name.lower()
-                if any(provider_name == offer_name_lower for provider_name in all_provider_names):
+                if any(provider_name.lower() == offer_name_lower for provider_name in all_provider_names):
                     url = getattr(offer, "url", None)
                     if url:
                         return url
 
         return None
 
-    def get_provider_url(self, movie: TMDBMovie, provider_name: ProviderName, region: str = None) -> str | None:
+    def get_provider_url(
+        self, movie: TMDBMovie, provider_name: ProviderName, region: str = None, fuzzy_match: bool = False
+    ) -> str | None:
+        """
+        Get the deep link for the given TMDBMovie on the specified provider.
+        Optionally provide a region to get the deep link from that region.
+
+        Args:
+            movie (TMDBMovie): The TMDBMovie to get the provider URL for.
+            provider_name (ProviderName): The provider to get the URL for.
+            region (str, optional): The region to get the URL from. Defaults to None.
+            fuzzy_match (bool, optional): Whether to use fuzzy matching. Defaults to False.
+        """
         if not movie or not provider_name:
             return None
         provider = movie.get_provider(provider_name)
@@ -301,7 +345,7 @@ class TMDBClient:
         for r in regions:
             region_name = region or next(iter(r.keys())).upper()
             # search with title and region to get MediaEntry's
-            results = search(movie.title, region_name, "en", count=10, best_only=False)
+            results = search(movie.title, country=region_name.upper(), language="en", count=6, best_only=True)
             if not results:
                 continue
 
@@ -311,31 +355,44 @@ class TMDBClient:
                 if not entry:
                     continue
                 offers = entry.offers
-                # check TMDB ID and IMDB ID for matching first
+
+                # check TMDB ID and IMDB ID + year
+                # due to justwatch frequently having mismatched or out-of-date data,
+                # adding the year check prevents many false positives the TMDB or IMDB ID's match but lead to the wrong movie deep link
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
-                if tmdb_match or imdb_match:
+                release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
+                if tmdb_match or imdb_match:  # and release_year_match:
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
 
-                release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
-                runtime_match = (
-                    entry.runtime_minutes == int(movie.duration // 60)
-                    if entry.runtime_minutes and movie.duration
-                    else False
-                )
-                title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
-                if title_match and release_year_match and runtime_match:
-                    url = self._fetch_provider_url(offers, provider_name)
-                    if url:
-                        return url
+                # check by title, year, and runtime if fuzzy_match is True
+                if fuzzy_match:
+                    runtime_match = (
+                        entry.runtime_minutes == int(movie.duration // 60)
+                        if entry.runtime_minutes and movie.duration
+                        else False
+                    )
+                    title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+                    if title_match and release_year_match and runtime_match:
+                        url = self._fetch_provider_url(offers, provider_name)
+                        if url:
+                            return url
 
         return None
 
     async def get_all_watch_providers(self, tmdb_id: str) -> list[Provider]:
         """
         Returns a list of Provider objects which the given TMDB ID is available on.
+
+        Args:
+            tmdb_id (str): The TMDB movie ID to fetch providers for.
+        Returns:
+            list[Provider]: List of Provider objects if the movie is available on any providers, else an empty list.
+        Raises:
+            aiohttp.ClientResponseError: If the TMDB API request fails with a status other than 404.
+                                         A 404 status is treated as "movie not found" and results in an empty list being returned.
         """
         url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/watch/providers"
         params = {"api_key": self.api_key}
@@ -350,13 +407,13 @@ class TMDBClient:
                     return await response.json()
             except aiohttp.ClientResponseError as e:
                 if e.status == 404:
-                    # if the movie is not found, return None without retrying
-                    return None
+                    # if the movie is not found, return an empty list
+                    return []
                 raise
 
         data = await fetch(url, params)
         if not data:
-            return None
+            return []
         return self._parse_providers_data(data)
 
 
