@@ -293,7 +293,6 @@ class ProviderName(Enum):
     YOUTUBE = "YouTube"
     YOUTUBE_PREMIUM = "YouTube Premium"
     YOUTUBE_TV = "YouTube TV"
-    VI_MOVIES_AND_TV = "VI movies and tv"
     VOYO = "Voyo"
     ZDF = "ZDF"
     ZEE5 = "Zee5"
@@ -629,7 +628,6 @@ class Provider:
         ProviderName.YOUTUBE.value: {"youtube"},
         ProviderName.YOUTUBE_PREMIUM.value: {"youtube premium"},
         ProviderName.YOUTUBE_TV.value: {"youtube tv"},
-        ProviderName.VI_MOVIES_AND_TV.value: {"vi movies and tv"},
         ProviderName.VOYO.value: {"voyo"},
         ProviderName.ZDF.value: {"zdf"},
         ProviderName.ZEE5.value: {"zee5"},
