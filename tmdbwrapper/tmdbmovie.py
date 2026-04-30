@@ -688,6 +688,7 @@ class TMDBMovie:
         duration: int | None = None,
         original_language: str | None = None,
         spoken_languages: list[str | None] = [],
+        origin_countries: list[str] = [],
         genres: list[str | None] = None,
         overview: str | None = None,
         vote_average: float | None = None,
@@ -702,6 +703,7 @@ class TMDBMovie:
         self.duration = duration
         self.original_language = original_language
         self.spoken_languages = spoken_languages
+        self.origin_countries = origin_countries
         self.genres = genres
         self.overview = overview
         self.vote_average = vote_average

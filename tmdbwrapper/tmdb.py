@@ -150,6 +150,7 @@ class TMDBClient:
             duration=main_parsed.get("duration"),
             original_language=main_parsed.get("original_language"),
             spoken_languages=main_parsed.get("spoken_languages"),
+            origin_countries=main_parsed.get("origin_countries"),
             overview=main_parsed.get("overview"),
             genres=main_parsed.get("genres"),
             vote_average=main_parsed.get("vote_average"),
@@ -189,7 +190,9 @@ class TMDBClient:
             if lang_code:
                 spoken_languages.append(lang_code.lower())
 
-        genre_objects = data.get("genres") or []
+        origin_countries: list[str] = data.get("origin_country", [])
+
+        genre_objects = data.get("genres", [])
         genres: list[str] = []
         for genre in genre_objects:
             genres.append(genre.get("name") or None)
@@ -205,6 +208,7 @@ class TMDBClient:
             "duration": duration,
             "original_language": original_language,
             "spoken_languages": spoken_languages,
+            "origin_countries": origin_countries,
             "genres": genres,
             "overview": overview,
             "vote_average": vote_average,
@@ -345,7 +349,9 @@ class TMDBClient:
         for r in regions:
             region_name = region or next(iter(r.keys())).upper()
             # search with title and region to get MediaEntry's
-            results = search(movie.title, country=region_name.upper(), language="en", count=6, best_only=True)
+            results = search(
+                movie.title, country=region_name.upper(), language="en", count=8, best_only=True, object_types=["MOVIE"]
+            )
             if not results:
                 continue
 
@@ -367,15 +373,18 @@ class TMDBClient:
                     if url:
                         return url
 
-                # check by title, year, and runtime if fuzzy_match is True
+                # check by title, year, runtime, and tmdb vote average if fuzzy_match is True
+                # this can help catch matches which have bad TMDB/IMDB ID's from JustWatch but are otherwise correct
+                # however, it can lead to false positives in some cases
                 if fuzzy_match:
                     runtime_match = (
-                        entry.runtime_minutes == int(movie.duration // 60)
+                        int(entry.runtime_minutes * 60) == movie.duration
                         if entry.runtime_minutes and movie.duration
                         else False
                     )
                     title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
-                    if title_match and release_year_match and runtime_match:
+                    tmdb_score_match = entry.scoring.tmdb_score == movie.vote_average if entry.scoring else False
+                    if title_match and release_year_match and runtime_match and tmdb_score_match:
                         url = self._fetch_provider_url(offers, provider_name)
                         if url:
                             return url
