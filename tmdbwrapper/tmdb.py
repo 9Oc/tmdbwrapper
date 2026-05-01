@@ -57,7 +57,7 @@ class TMDBClient:
             year (int | None): The year to filter results by. Defaults to None.
             region (str | None): The region to filter results by. Defaults to None.
         Returns:
-            list[TMDBMovie] | None: A list of TMDBMovie objects if results are found, otherwise None.
+            list[TMDBMovie]: A list of TMDBMovie objects if results are found, otherwise an empty list.
         """
         url = "https://api.themoviedb.org/3/search/movie"
         params = {
@@ -69,15 +69,17 @@ class TMDBClient:
         if region:
             params["region"] = region.lower()
 
-        r = requests.get(url, params=params, timeout=15)
+        proxies = {"http": self.proxy, "https": self.proxy} if self.proxy else None
+        r = requests.get(url, params=params, proxies=proxies, timeout=15)
         r.raise_for_status()
         data = r.json()
         results = data.get("results", [])
 
         if not results:
-            return None
+            return []
+
         # limit concurrency to avoid rate limiting
-        sem = asyncio.Semaphore(10)
+        sem = asyncio.Semaphore(5)
 
         async def sem_get_movie(movie_id: str):
             async with sem:
@@ -86,7 +88,7 @@ class TMDBClient:
         # create tasks only for results that have an id
         tasks = [asyncio.create_task(sem_get_movie(str(r["id"]))) for r in results if r.get("id") is not None]
         if not tasks:
-            return None
+            return []
 
         movies = await asyncio.gather(*tasks)
         # filter out None results (failed fetches)
@@ -270,14 +272,13 @@ class TMDBClient:
     def _get_justwatch_node_id(self, movie: TMDBMovie, country: str) -> str | None:
         """
         Search JustWatch for the given TMDBMovie and get its node ID.
-        Uses TMDB/IMDB for matching, or title + year + runtime as a fallback.
-        Returns the node ID if found, else None.
+        Unused function for now, may be needed in the future.
         """
         if not movie.title:
             return None
 
         # search with title and country
-        results = search(movie.title, country.upper(), "en", count=10, best_only=False)
+        results = search(movie.title, country.upper(), "en", count=10, best_only=True, object_types=["MOVIE"])
 
         if results is None or not results:
             return None
@@ -288,16 +289,16 @@ class TMDBClient:
             # check TMDB ID and IMDB ID for matching
             imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
             tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
-            if tmdb_match or imdb_match:
-                return entry.entry_id
             release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
+            if (tmdb_match or imdb_match) and release_year_match:
+                return entry.entry_id
+
             runtime_match = (
-                entry.runtime_minutes == int(movie.duration // 60)
-                if entry.runtime_minutes and movie.duration
-                else False
+                int(entry.runtime_minutes * 60) == movie.duration if entry.runtime_minutes and movie.duration else False
             )
             title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
-            if title_match and release_year_match and runtime_match:
+            tmdb_score_match = entry.scoring.tmdb_score == movie.vote_average if entry.scoring else False
+            if title_match and release_year_match and runtime_match and tmdb_score_match:
                 return entry.entry_id
 
         return None
@@ -308,7 +309,7 @@ class TMDBClient:
         if not offers or not provider_name:
             return None
 
-        # get all possible names for the given ProviderName (canonical + aliases)
+        # get all alises for the given ProviderName
         canonical_name = provider_name.value
         all_provider_names = {canonical_name.lower()}
 
@@ -338,7 +339,9 @@ class TMDBClient:
             movie (TMDBMovie): The TMDBMovie to get the provider URL for.
             provider_name (ProviderName): The provider to get the URL for.
             region (str, optional): The region to get the URL from. Defaults to None.
-            fuzzy_match (bool, optional): Whether to use fuzzy matching. Defaults to False.
+            fuzzy_match (bool, optional): Whether to allow matching by title, year, runtime, and TMDB vote average instead of TMDB/IMDB ID. Defaults to False.
+        Returns:
+            str | None: The provider deep link for the movie if found, otherwise None.
         """
         if not movie or not provider_name:
             return None
@@ -356,7 +359,7 @@ class TMDBClient:
                 continue
 
             # check each entry for a match to the given movie
-            # if a match is found, look through offers and return the URL for the given provider
+            # if a match is found, look through offers and to find the URL for the given provider
             for entry in results:
                 if not entry:
                     continue
@@ -364,11 +367,11 @@ class TMDBClient:
 
                 # check TMDB ID and IMDB ID + year
                 # due to justwatch frequently having mismatched or out-of-date data,
-                # adding the year check prevents many false positives the TMDB or IMDB ID's match but lead to the wrong movie deep link
+                # adding the year check prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
                 release_year_match = entry.release_year == movie.year if entry.release_year and movie.year else False
-                if tmdb_match or imdb_match:  # and release_year_match:
+                if (tmdb_match or imdb_match) and release_year_match:
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
@@ -398,7 +401,7 @@ class TMDBClient:
         Args:
             tmdb_id (str): The TMDB movie ID to fetch providers for.
         Returns:
-            list[Provider]: List of Provider objects if the movie is available on any providers, else an empty list.
+            list[Provider]: List of Provider objects if the movie is available on any providers, otherwise an empty list.
         Raises:
             aiohttp.ClientResponseError: If the TMDB API request fails with a status other than 404.
                                          A 404 status is treated as "movie not found" and results in an empty list being returned.

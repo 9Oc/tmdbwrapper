@@ -1,5 +1,5 @@
 # tmdbwrapper <a href="https://www.python.org/downloads/release/python-3100/"><img src="https://img.shields.io/badge/Python-3.10%2B-brightgreen" alt="Python 3.10+"></a>
-A wrapper for the TMDB API that allows for asynchronous building of TMDBMovie objects and retrieving streaming provider URLs.
+A wrapper for the TMDB API that allows for asynchronous building of TMDBMovie objects and retrieving streaming provider deep links.
 
 ## Requirements
 - Python 3.10+
@@ -26,7 +26,7 @@ To use the wrapper, create a TMDBClient object with your TMDB API key passed in 
 ```
 from tmdbwrapper.tmdb import TMDBClient
 
-client = TMDBClient("tmdb_api_key")
+client = TMDBClient("tmdb_api_key", proxy=None) # optionally provide a proxy for requests made to the TMDB API
 ```
 
 Once your client instance is initialized, there are a few functions available:  
@@ -37,26 +37,33 @@ Once your client instance is initialized, there are a few functions available:
 
 ### get_movie
 Builds a TMDBMovie object containing these fields:  
-- ``id``: The TMDB ID of the movie
-- ``imdb_id``: The IMDB ID of the movie
-- ``title``: The title of the movie
-- ``original_title``: The original title of the movie, ``None`` if the movie has no original_title
-- ``alternative_titles``: A dict where the keys are regions and the items are the alternative titles of the movie belonging to the regions
-- ``year``: The release year of the movie
-- ``duration``: The duration of the movie in seconds
-- ``providers``: A list of Provider objects which represent the streaming providers which the movie is on
-```
+- ``id``: The TMDB ID of the movie.
+- ``imdb_id``: The IMDB ID of the movie, ``None`` if TMDB has not stored an IMDB ID for the movie.
+- ``title``: The title of the movie.
+- ``year``: The release year of the movie, ``None`` if TMDB has not stored a year for the movie.
+- ``original_title``: The original title of the movie, ``None`` if the movie has no original_title.
+- ``alternative_titles``: A dict where the keys are regions and the values are the alternative titles of the movie belonging to the regions.
+- ``duration``: The duration of the movie in seconds.
+- ``original_language``: The original language of the movie as a BCP 47 code, ``None`` if TMDB does not have an original language for the movie.
+- ``spoken_languages``: The spoken languages in the movie as a list of BCP 47 codes.
+- ``origin_countries``: The country or countries of origin for the movie (where the movie was originally released).
+- ``genres``: The list of genres the movie falls under.
+- ``overview``: The short overview (synopsis) of the movie, ``None`` if TMDB has not stored an overview for the movie.
+- ``vote_average``: The average rating for the movie on TMDB, ``None`` if no users have voted on the movie.
+- ``providers``: A list of Provider objects which represent the streaming providers which the movie is on.
+```python
 from tmdbwrapper.tmdb import TMDBClient
+from tmdbwrapper.tmdbmovie import ProviderName
 
 client = TMDBClient("tmdb_api_key")
-movie = await client.get_movie("550")
+movie = await client.get_movie(14367) # the given ID may be a string or int
 print(f"{movie.title} ({movie.year}) [{movie.id}]")
 print(movie.providers)
 
 """
 Output:  
-Adventures in Babysitting (1987) [14367]
-[Provider(Disney Plus, regions={'se', 'pa', 'tr', 'rs', 'do', 'no', 'sv', 'lt', 'us', 'es', 'gt', 'ec', 'bz', 'sm', 'uy', 'ca', 'fi', 'bg', 'ee', 'pt', 'ni', 'au', 'lu', 'me', 'lc', 'jm', 'li', 'de', 'fr', 'ba', 'dk', 'be', 'br', 'eg', 'lv', 'al', 'mk', 'nl', 'bo', 'ph', 'si', 'it', 'tt', 'ar', 'cr', 'pe', 'py', 'ie', 'hn', 'mx', 'gb', 'at', 'ch', 'hr', 'nz', 'ad', 'is', 'cl', 've', 'co'}), Provider(Apple TV, regions={'ie', 'za', 'gb', 'nz', 'us', 'ca', 'au'}), Provider(Amazon Prime Video, regions={'fr', 'se', 'be', 'ie', 'gb', 'nz', 'us', 'es', 'ca', 'au', 'pl', 'gg'}), Provider(Google Play Movies, regions={'fr', 'hu', 'ie', 'ua', 'gb', 'nz', 'us', 'es', 'sk', 'ca', 'au', 'pl'}), Provider(YouTube, regions={'fr', 'gb', 'us', 'ca', 'au', 'pl'}), Provider(CosmoGo, regions={'ca'}), Provider(Crave Amazon Channel, regions={'ca'}), Provider(MovistarTV, regions={'co', 'cl'}), Provider(More TV, regions={'ru'}), Provider(Fandango At Home, regions={'us'})]
+Adventures in Babysitting (1987) [14367]  
+[Provider(Disney Plus, regions=[{'ad': 'flatrate'}, {'al': 'flatrate'}, {'ar': 'flatrate'}, {'at': 'flatrate'}, {'au': 'flatrate'}, {'ba': 'flatrate'}, {'be': 'flatrate'}, {'bg': 'flatrate'}, {'bo': 'flatrate'}, {'br': 'flatrate'}, {'bz': 'flatrate'}, {'ca': 'flatrate'}, {'ch': 'flatrate'}, {'cl': 'flatrate'}, {'co': 'flatrate'}, {'cr': 'flatrate'}, {'de': 'flatrate'}, {'dk': 'flatrate'}, {'do': 'flatrate'}, {'ec': 'flatrate'}, {'ee': 'flatrate'}, {'eg': 'flatrate'}, {'es': 'flatrate'}, {'fi': 'flatrate'}, {'fr': 'flatrate'}, {'gb': 'flatrate'}, {'gt': 'flatrate'}, {'hn': 'flatrate'}, {'hr': 'flatrate'}, {'ie': 'flatrate'}, {'is': 'flatrate'}, {'it': 'flatrate'}, {'jm': 'flatrate'}, {'lc': 'flatrate'}, {'li': 'flatrate'}, {'lt': 'flatrate'}, {'lu': 'flatrate'}, {'lv': 'flatrate'}, {'me': 'flatrate'}, {'mk': 'flatrate'}, {'mx': 'flatrate'}, {'ni': 'flatrate'}, {'nl': 'flatrate'}, {'no': 'flatrate'}, {'nz': 'flatrate'}, {'pa': 'flatrate'}, {'pe': 'flatrate'}, {'ph': 'flatrate'}, {'pt': 'flatrate'}, {'py': 'flatrate'}, {'rs': 'flatrate'}, {'se': 'flatrate'}, {'si': 'flatrate'}, {'sm': 'flatrate'}, {'sv': 'flatrate'}, {'tr': 'flatrate'}, {'tt': 'flatrate'}, {'us': 'flatrate'}, {'uy': 'flatrate'}, {'ve': 'flatrate'}]), Provider(Apple TV, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'ca': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'us': 'buy'}, {'us': 'rent'}, {'za': 'buy'}, {'za': 'rent'}]), Provider(Amazon Prime Video, regions=[{'au': 'buy'}, {'be': 'rent'}, {'ca': 'buy'}, {'ca': 'rent'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'gg': 'buy'}, {'gg': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'se': 'rent'}, {'us': 'buy'}, {'us': 'rent'}]), Provider(Google Play Movies, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'hu': 'buy'}, {'hu': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'sk': 'buy'}, {'sk': 'rent'}, {'ua': 'buy'}, {'ua': 'rent'}, {'us': 'buy'}]), Provider(YouTube, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'pl': 'buy'}, {'pl': 'rent'}, {'us': 'buy'}]), Provider(CosmoGo, regions=[{'ca': 'buy'}, {'ca': 'rent'}]), Provider(Crave, regions=[{'ca': 'flatrate'}]), Provider(Crave Amazon Channel, regions=[{'ca': 'flatrate'}]), Provider(Tubi TV, regions=[{'ca': 'ads'}]), Provider(MovistarTV, regions=[{'cl': 'flatrate'}, {'co': 'flatrate'}]), Provider(More TV, regions=[{'ru': 'flatrate'}]), Provider(Fandango At Home, regions=[{'us': 'buy'}, {'us': 'rent'}])]
 """
 
 # If you want to get a specific Provider from a TMDBMovie object, you can call get_provider.
@@ -64,13 +71,13 @@ print(movie.get_provider(ProviderName.MOVISTARTV))
 
 """
 Output:  
-Provider(MovistarTV, regions={'cl', 'co'})
+Provider(MovistarTV, regions=[{'cl': 'flatrate'}, {'co': 'flatrate'}])
 """"
 ```
 
 ### get_all_watch_providers
-This function is called when you use ``get_movie``, but if you want to skip building a full TMDBMovie object and just want a list of Provider objects for a given TMDB ID, you can call ``get_all_watch_providers`` and pass the TMDB ID in as an argument.
-```
+This result of this function is encapsulated in ``get_movie``, but if you want to skip building a full TMDBMovie object and just want a list of Provider objects for a given TMDB ID, you can call ``get_all_watch_providers`` and pass the TMDB ID in as an argument.
+```python
 from tmdbwrapper.tmdb import TMDBClient
 
 client = TMDBClient("tmdb_api_key")
@@ -79,13 +86,13 @@ print(providers)
 
 """
 Output:  
-[Provider(Disney Plus, regions={'uy', 'sm', 'lc', 'is', 'at', 'li', 'rs', 'fr', 'lu', 'ie', 'br', 'no', 'ni', 'pe', 'ec', 'es', 'pt', 'de', 've', 'mk', 'sv', 'ch', 'al', 'au', 'dk', 'lv', 'ph', 'bo', 'mx', 'cr', 'si', 'us', 'fi', 'py', 'nz', 'ar', 'lt', 'gt', 'co', 'be', 'pa', 'ad', 'gb', 'ba', 'jm', 'tr', 'tt', 'bg', 'eg', 'it', 'me', 'nl', 'se', 'bz', 'cl', 'ee', 'ca', 'do', 'hn', 'hr'}), Provider(Apple TV, regions={'gb', 'us', 'za', 'nz', 'ca', 'ie', 'au'}), Provider(Amazon Prime Video, regions={'be', 'es', 'gb', 'us', 'se', 'pl', 'nz', 'ca', 'fr', 'ie', 'au', 'gg'}), Provider(Google Play Movies, regions={'ua', 'gb', 'es', 'us', 'hu', 'nz', 'pl', 'ca', 'fr', 'sk', 'ie', 'au'}), Provider(YouTube, regions={'gb', 'us', 'pl', 'ca', 'fr', 'au'}), Provider(CosmoGo, regions={'ca'}), Provider(Crave Amazon Channel, regions={'ca'}), Provider(MovistarTV, regions={'cl', 'co'}), Provider(More TV, regions={'ru'}), Provider(Fandango At Home, regions={'us'})]
+[Provider(Disney Plus, regions=[{'ad': 'flatrate'}, {'al': 'flatrate'}, {'ar': 'flatrate'}, {'at': 'flatrate'}, {'au': 'flatrate'}, {'ba': 'flatrate'}, {'be': 'flatrate'}, {'bg': 'flatrate'}, {'bo': 'flatrate'}, {'br': 'flatrate'}, {'bz': 'flatrate'}, {'ca': 'flatrate'}, {'ch': 'flatrate'}, {'cl': 'flatrate'}, {'co': 'flatrate'}, {'cr': 'flatrate'}, {'de': 'flatrate'}, {'dk': 'flatrate'}, {'do': 'flatrate'}, {'ec': 'flatrate'}, {'ee': 'flatrate'}, {'eg': 'flatrate'}, {'es': 'flatrate'}, {'fi': 'flatrate'}, {'fr': 'flatrate'}, {'gb': 'flatrate'}, {'gt': 'flatrate'}, {'hn': 'flatrate'}, {'hr': 'flatrate'}, {'ie': 'flatrate'}, {'is': 'flatrate'}, {'it': 'flatrate'}, {'jm': 'flatrate'}, {'lc': 'flatrate'}, {'li': 'flatrate'}, {'lt': 'flatrate'}, {'lu': 'flatrate'}, {'lv': 'flatrate'}, {'me': 'flatrate'}, {'mk': 'flatrate'}, {'mx': 'flatrate'}, {'ni': 'flatrate'}, {'nl': 'flatrate'}, {'no': 'flatrate'}, {'nz': 'flatrate'}, {'pa': 'flatrate'}, {'pe': 'flatrate'}, {'ph': 'flatrate'}, {'pt': 'flatrate'}, {'py': 'flatrate'}, {'rs': 'flatrate'}, {'se': 'flatrate'}, {'si': 'flatrate'}, {'sm': 'flatrate'}, {'sv': 'flatrate'}, {'tr': 'flatrate'}, {'tt': 'flatrate'}, {'us': 'flatrate'}, {'uy': 'flatrate'}, {'ve': 'flatrate'}]), Provider(Apple TV, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'ca': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'us': 'buy'}, {'us': 'rent'}, {'za': 'buy'}, {'za': 'rent'}]), Provider(Amazon Prime Video, regions=[{'au': 'buy'}, {'be': 'rent'}, {'ca': 'buy'}, {'ca': 'rent'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'gg': 'buy'}, {'gg': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'se': 'rent'}, {'us': 'buy'}, {'us': 'rent'}]), Provider(Google Play Movies, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'hu': 'buy'}, {'hu': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'sk': 'buy'}, {'sk': 'rent'}, {'ua': 'buy'}, {'ua': 'rent'}, {'us': 'buy'}]), Provider(YouTube, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'pl': 'buy'}, {'pl': 'rent'}, {'us': 'buy'}]), Provider(CosmoGo, regions=[{'ca': 'buy'}, {'ca': 'rent'}]), Provider(Crave, regions=[{'ca': 'flatrate'}]), Provider(Crave Amazon Channel, regions=[{'ca': 'flatrate'}]), Provider(Tubi TV, regions=[{'ca': 'ads'}]), Provider(MovistarTV, regions=[{'cl': 'flatrate'}, {'co': 'flatrate'}]), Provider(More TV, regions=[{'ru': 'flatrate'}]), Provider(Fandango At Home, regions=[{'us': 'buy'}, {'us': 'rent'}])]
 """
 ```
 
 ### get_provider_url
-Gets the streaming provider url for a given TMDBMovie object, provider name, and optional region.
-```
+Gets the deep link for the given TMDBMovie object, provider name, and optional region.  
+```python
 from tmdbwrapper.tmdb import TMDBClient
 from tmdbwrapper.tmdbmovie import ProviderName
 
@@ -110,7 +117,7 @@ https://tv.apple.com/ar/movie/harry-potter-y-la-piedra-filosofal/umc.cmc.55wxtmr
 
 ### search
 Searches the TMDB API using the search endpoint with the specified query and returns a list of TMDBMovie objects parsed from the results. Optionally provide a year and/or region to narrow down results.
-```
+```python
 from tmdbwrapper.tmdb import TMDBClient
 
 client = TMDBClient("tmdb_api_key")
