@@ -375,8 +375,8 @@ class TMDBClient:
                 # adding the 2 additional checks prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if (entry.imdb_id and movie.imdb_id) else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if (entry.tmdb_id and movie.id) else False
-                title_match = (entry.title and movie.title and entry.title == movie.title) or (
-                    entry.title and movie.original_title and entry.title == movie.original_title
+                title_match = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
+                    entry.title and movie.original_title and entry.title.lower() == movie.original_title.lower()
                 )
                 release_year_match = (
                     int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
