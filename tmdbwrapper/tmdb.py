@@ -397,9 +397,12 @@ class TMDBClient:
                     else False
                 )
 
-                if (tmdb_match or imdb_match) and sum(
+                number_of_matches = sum(
                     [title_match, release_year_match, runtime_match, overview_match, tmdb_score_match]
-                ) >= 2:
+                )
+                if ((tmdb_match or imdb_match) and number_of_matches >= 2) or (
+                    tmdb_match and imdb_match and number_of_matches >= 1
+                ):
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
