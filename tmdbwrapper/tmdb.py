@@ -389,7 +389,11 @@ class TMDBClient:
                     if entry.short_description and movie.overview
                     else False
                 )
-                tmdb_score_match = int(entry.scoring.tmdb_score) == int(movie.vote_average) if entry.scoring else False
+                tmdb_score_match = (
+                    int(entry.scoring.tmdb_score) == int(movie.vote_average)
+                    if entry.scoring and entry.scoring.tmdb_score and movie.vote_average
+                    else False
+                )
 
                 if (tmdb_match or imdb_match) and sum(
                     [title_match, release_year_match, runtime_match, overview_match]
