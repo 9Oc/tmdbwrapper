@@ -346,9 +346,7 @@ class TMDBClient:
         if not movie or not provider_name:
             return None
         provider = movie.get_provider(provider_name)
-        if provider is None:
-            return None
-        regions = [region] if region else list(provider.regions)
+        regions = [region] if region else list(provider.regions if provider else [])
         for r in regions:
             region_name = region or next(iter(r.keys())).upper()
             # search with title and region to get MediaEntry's
