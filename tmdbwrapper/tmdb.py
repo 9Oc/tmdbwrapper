@@ -389,6 +389,8 @@ class TMDBClient:
                     if entry.short_description and movie.overview
                     else False
                 )
+                tmdb_score_match = int(entry.scoring.tmdb_score) == int(movie.vote_average) if entry.scoring else False
+
                 if (tmdb_match or imdb_match) and sum(
                     [title_match, release_year_match, runtime_match, overview_match]
                 ) >= 2:
@@ -400,10 +402,7 @@ class TMDBClient:
                 # this can help catch matches which have bad TMDB/IMDB ID's from JustWatch but are otherwise correct
                 # however, it can lead to false positives in some cases
                 if fuzzy_match:
-                    tmdb_score_match = (
-                        str(entry.scoring.tmdb_score) == str(movie.vote_average) if entry.scoring else False
-                    )
-                    if title_match and release_year_match and runtime_match and (tmdb_score_match or overview_match):
+                    if title_match and release_year_match and runtime_match and tmdb_score_match or overview_match:
                         url = self._fetch_provider_url(offers, provider_name)
                         if url:
                             return url
