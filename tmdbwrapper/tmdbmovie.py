@@ -31,6 +31,7 @@ class ProviderName(Enum):
     ARD_PLUS_AMAZON_CHANNEL = "ARD Plus Amazon channel"
     ARD_PLUS_APPLE_TV_CHANNEL = "ARD Plus Apple TV channel"
     ARTE_BOUTIQUE = "ARTE Boutique"
+    ARTHAUS_PLUS = "Arthaus+"
     ARTHOUSE_CNMA = "ArthouseCNMA"
     ARTHOUSE_CNMA_AMAZON_CHANNEL = "Arthouse CNMA Amazon Channel"
     ASIANCRUSH = "AsianCrush"
@@ -220,9 +221,11 @@ class ProviderName(Enum):
     RTL_PLUS_MAX_AMAZON_CHANNEL = "RTL+ Max Amazon Channel"
     RUUTU = "Ruutu"
     SF_ANYTIME = "SF Anytime"
+    SFR_PLAY = "SFR Play"
     SHADOWZ = "Shadowz"
     SHADOWZ_AMAZON_CHANNEL = "Shadowz Amazon Channel"
     SHAHID_VIP = "Shahid VIP"
+    SHOUT_FACTORY_TV = "Shout! Factory TV"
     SHOWMAX = "ShowMax"
     SHUDDER = "Shudder"
     SHUDDER_AMAZON_CHANNEL = "Shudder Amazon Channel"
@@ -251,6 +254,7 @@ class ProviderName(Enum):
     SUNDANCE_NOW_APPLE_TV_CHANNEL = "Sundance Now Apple TV Channel"
     SUPERFRESH_AMAZON_CHANNEL = "Superfresh Amazon Channel"
     SVT = "SVT"
+    TELE_QUEBEC = "Tele Quebec"
     TELE2_PLAY = "Tele2 Play"
     TELECINE = "Telecine"
     TELECINE_AMAZON_CHANNEL = "Telecine Amazon Channel"
@@ -289,6 +293,7 @@ class ProviderName(Enum):
     WOW = "WOW"
     WOW_FICTION_AMAZON_CHANNEL = "Wow Fiction Amazon Channel"
     XIVE_TV_DOCUMENTARIES_AMAZON_CHANNEL = "Xive TV Documentaries Amazon Channel"
+    XUMO_PLAY = "Xumo Play"
     YLE_AREENA = "Yle Areena"
     YOUTUBE = "YouTube"
     YOUTUBE_PREMIUM = "YouTube Premium"
@@ -336,6 +341,7 @@ class Provider:
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},
         ProviderName.ARTE_BOUTIQUE.value: {"arte boutique"},
+        ProviderName.ARTHAUS_PLUS.value: {"arthaus+", "arthaus plus"},
         ProviderName.ARTHOUSE_CNMA.value: {"arthouse cnma", "arthousecnma"},
         ProviderName.ARTHOUSE_CNMA_AMAZON_CHANNEL.value: {"arthouse cnma amazon channel"},
         ProviderName.ASIANCRUSH.value: {"asiancrush"},
@@ -555,9 +561,11 @@ class Provider:
         ProviderName.RTL_PLUS_MAX_AMAZON_CHANNEL.value: {"rtl+ max amazon channel", "rtl plus max amazon channel"},
         ProviderName.RUUTU.value: {"ruutu"},
         ProviderName.SF_ANYTIME.value: {"sf anytime"},
+        ProviderName.SFR_PLAY.value: {"sfr play"},
         ProviderName.SHADOWZ.value: {"shadowz"},
         ProviderName.SHADOWZ_AMAZON_CHANNEL.value: {"shadowz amazon channel"},
         ProviderName.SHAHID_VIP.value: {"shahid vip"},
+        ProviderName.SHOUT_FACTORY_TV.value: {"shout factory tv", "shout! factory tv"},
         ProviderName.SHOWMAX.value: {"showmax"},
         ProviderName.SHUDDER.value: {"shudder"},
         ProviderName.SHUDDER_AMAZON_CHANNEL.value: {"shudder amazon channel"},
@@ -586,6 +594,7 @@ class Provider:
         ProviderName.SUNDANCE_NOW_APPLE_TV_CHANNEL.value: {"sundance now apple tv channel"},
         ProviderName.SUPERFRESH_AMAZON_CHANNEL.value: {"superfresh amazon channel"},
         ProviderName.SVT.value: {"svt"},
+        ProviderName.TELE_QUEBEC.value: {"tele quebec"},
         ProviderName.TELE2_PLAY.value: {"tele2 play"},
         ProviderName.TELECINE.value: {"telecine"},
         ProviderName.TELECINE_AMAZON_CHANNEL.value: {"telecine amazon channel"},
@@ -624,6 +633,7 @@ class Provider:
         ProviderName.WOW.value: {"wow"},
         ProviderName.WOW_FICTION_AMAZON_CHANNEL.value: {"wow fiction amazon channel"},
         ProviderName.XIVE_TV_DOCUMENTARIES_AMAZON_CHANNEL.value: {"xive tv documentaries amazon channel"},
+        ProviderName.XUMO_PLAY.value: {"xumo play"},
         ProviderName.YLE_AREENA.value: {"yle areena"},
         ProviderName.YOUTUBE.value: {"youtube"},
         ProviderName.YOUTUBE_PREMIUM.value: {"youtube premium"},

@@ -23,7 +23,7 @@ pip install --upgrade git+https://github.com/9Oc/tmdbwrapper.git
 
 ## Usage
 To use the wrapper, create a TMDBClient object with your TMDB API key passed in as an argument:
-```
+```python
 from tmdbwrapper.tmdb import TMDBClient
 
 client = TMDBClient("tmdb_api_key", proxy=None) # optionally provide a proxy for requests made to the TMDB API
@@ -72,7 +72,7 @@ print(movie.get_provider(ProviderName.MOVISTARTV))
 """
 Output:  
 Provider(MovistarTV, regions=[{'cl': 'flatrate'}, {'co': 'flatrate'}])
-""""
+"""
 ```
 
 ### get_all_watch_providers
