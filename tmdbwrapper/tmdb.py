@@ -365,9 +365,9 @@ class TMDBClient:
                     continue
                 offers = entry.offers
 
-                # check TMDB ID and IMDB ID + title + runtime
+                # check TMDB ID and IMDB ID + (title or year) and (runtime or overview)
                 # due to justwatch frequently having mismatched or out-of-date data,
-                # adding the year check prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
+                # adding the 2 additional checks prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
                 title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
@@ -377,17 +377,24 @@ class TMDBClient:
                     if entry.runtime_minutes and movie.duration
                     else False
                 )
-                if (tmdb_match or imdb_match) and title_match and runtime_match:
+                overview_match = (
+                    entry.short_description == movie.overview if entry.short_description and movie.overview else False
+                )
+                if (
+                    (tmdb_match or imdb_match)
+                    and (title_match or release_year_match)
+                    and (runtime_match or overview_match)
+                ):
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
 
-                # check by title, year, runtime, and tmdb vote average if fuzzy_match is True
+                # check by title, year, runtime, and (tmdb vote average or overview) if fuzzy_match is True
                 # this can help catch matches which have bad TMDB/IMDB ID's from JustWatch but are otherwise correct
                 # however, it can lead to false positives in some cases
                 if fuzzy_match:
                     tmdb_score_match = entry.scoring.tmdb_score == movie.vote_average if entry.scoring else False
-                    if title_match and release_year_match and runtime_match and tmdb_score_match:
+                    if title_match and release_year_match and runtime_match and (tmdb_score_match or overview_match):
                         url = self._fetch_provider_url(offers, provider_name)
                         if url:
                             return url
