@@ -353,7 +353,12 @@ class TMDBClient:
             region_name = region or next(iter(r.keys())).upper()
             # search with title and region to get MediaEntry's
             results = search(
-                movie.title, country=region_name.upper(), language="en", count=8, best_only=True, object_types=["MOVIE"]
+                movie.title,
+                country=region_name.upper(),
+                language="en",
+                count=20,
+                best_only=True,
+                object_types=["MOVIE"],
             )
             if not results:
                 continue
