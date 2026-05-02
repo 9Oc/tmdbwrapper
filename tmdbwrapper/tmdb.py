@@ -375,8 +375,8 @@ class TMDBClient:
                 # adding the 2 additional checks prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
                 imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if (entry.imdb_id and movie.imdb_id) else False
                 tmdb_match = str(entry.tmdb_id) == str(movie.id) if (entry.tmdb_id and movie.id) else False
-                title_match = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
-                    entry.title and movie.original_title and entry.title.lower() == movie.original_title.lower()
+                title_match = (entry.title and movie.title and entry.title == movie.title) or (
+                    entry.title and movie.original_title and entry.title == movie.original_title
                 )
                 release_year_match = (
                     int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
@@ -392,13 +392,13 @@ class TMDBClient:
                     else False
                 )
                 tmdb_score_match = (
-                    int(entry.scoring.tmdb_score) == int(movie.vote_average)
+                    float(entry.scoring.tmdb_score) == float(movie.vote_average)
                     if entry.scoring and entry.scoring.tmdb_score and movie.vote_average
                     else False
                 )
 
                 if (tmdb_match or imdb_match) and sum(
-                    [title_match, release_year_match, runtime_match, overview_match]
+                    [title_match, release_year_match, runtime_match, overview_match, tmdb_score_match]
                 ) >= 2:
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
