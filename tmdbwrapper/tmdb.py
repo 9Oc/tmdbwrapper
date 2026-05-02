@@ -392,7 +392,7 @@ class TMDBClient:
                     else False
                 )
                 tmdb_score_match = (
-                    float(entry.scoring.tmdb_score) == float(movie.vote_average)
+                    round(float(entry.scoring.tmdb_score), 1) == round(float(movie.vote_average), 1)
                     if entry.scoring and entry.scoring.tmdb_score and movie.vote_average
                     else False
                 )
