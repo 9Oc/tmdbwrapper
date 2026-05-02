@@ -373,14 +373,16 @@ class TMDBClient:
                 # check TMDB ID and IMDB ID + (title or year) and (runtime or overview)
                 # due to justwatch frequently having mismatched or out-of-date data,
                 # adding the 2 additional checks prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
-                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if entry.imdb_id else False
-                tmdb_match = str(entry.tmdb_id) == str(movie.id) if entry.tmdb_id else False
-                title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
+                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if (entry.imdb_id and movie.imdb_id) else False
+                tmdb_match = str(entry.tmdb_id) == str(movie.id) if (entry.tmdb_id and movie.id) else False
+                title_match = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
+                    entry.title and movie.original_title and entry.title.lower() == movie.original_title.lower()
+                )
                 release_year_match = (
-                    str(entry.release_year) == str(movie.year) if entry.release_year and movie.year else False
+                    int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
                 )
                 runtime_match = (
-                    str(entry.runtime_minutes * 60) == str(movie.duration)
+                    int(entry.runtime_minutes * 60) == int(movie.duration)
                     if entry.runtime_minutes and movie.duration
                     else False
                 )
