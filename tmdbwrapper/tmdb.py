@@ -329,7 +329,12 @@ class TMDBClient:
         return None
 
     def get_provider_url(
-        self, movie: TMDBMovie, provider_name: ProviderName, region: str = None, fuzzy_match: bool = False
+        self,
+        movie: TMDBMovie,
+        provider_name: ProviderName,
+        region: str = None,
+        year: int = None,
+        fuzzy_match: bool = False,
     ) -> str | None:
         """
         Get the deep link for the given TMDBMovie on the specified provider.
@@ -345,6 +350,11 @@ class TMDBClient:
         """
         if not movie or not provider_name:
             return None
+        min_year = None
+        max_year = None
+        if year:
+            min_year = year - 2
+            max_year = year + 2
         provider = movie.get_provider(provider_name)
         regions = [region] if region else list(provider.regions if provider else [])
         for r in regions:
@@ -356,6 +366,8 @@ class TMDBClient:
                 language="en",
                 count=20,
                 best_only=True,
+                min_release_year=min_year,
+                max_release_year=max_year,
                 object_types=["MOVIE"],
             )
             if not results:
