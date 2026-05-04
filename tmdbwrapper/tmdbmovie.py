@@ -703,6 +703,7 @@ class TMDBMovie:
         overview: str | None = None,
         vote_average: float | None = None,
         providers: list[Provider] = [],
+        credits: list[dict] = [],
     ):
         self.id = id
         self.imdb_id = imdb_id
@@ -718,6 +719,7 @@ class TMDBMovie:
         self.overview = overview
         self.vote_average = vote_average
         self.providers = providers
+        self.credits = credits
 
     def __repr__(self):
         return f"TMDBMovie(id={self.id}, title='{self.title}', original_title='{self.original_title}', year={self.year}, duration={self.duration})"

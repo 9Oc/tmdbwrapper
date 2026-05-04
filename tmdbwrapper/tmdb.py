@@ -96,19 +96,23 @@ class TMDBClient:
 
         return movies if movies else []
 
-    async def get_movie(self, movie_id: str, get_alternative_titles: bool = False) -> TMDBMovie | None:
+    async def get_movie(
+        self, movie_id: str, get_alternative_titles: bool = False, get_credits: bool = False
+    ) -> TMDBMovie | None:
         """
         Build a TMDBMovie object from TMDB API data for the given movie ID.
 
         Args:
             movie_id (str): The TMDB movie ID to fetch data for.
             get_alternative_titles (bool): Whether to fetch alternative titles data (additional API call cost). Defaults to False.
+            get_credits (bool): Whether to fetch credits data (additional API call cost). Defaults to False.
         Returns:
             TMDBMovie | None: The TMDBMovie object if the movie is found, otherwise None.
         """
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
         alternative_titles_url = f"https://api.themoviedb.org/3/movie/{movie_id}/alternative_titles"
         watch_providers_url = f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers"
+        credits_url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits"
         params = {"api_key": self.api_key}
 
         session = await self._get_session()
@@ -121,7 +125,7 @@ class TMDBClient:
                 except aiohttp.ClientResponseError as e:
                     if e.status == 404:
                         return None
-                    raise
+                    raise e
 
         async def _none():
             return None
@@ -129,8 +133,11 @@ class TMDBClient:
         main_task = _fetch(movie_url, params)
         alt_task = _fetch(alternative_titles_url, params) if get_alternative_titles else _none()
         providers_task = _fetch(watch_providers_url, params)
+        credits_task = _fetch(credits_url, params) if get_credits else _none()
 
-        main_data, alt_data, providers_data = await asyncio.gather(main_task, alt_task, providers_task)
+        main_data, alt_data, providers_data, credits_data = await asyncio.gather(
+            main_task, alt_task, providers_task, credits_task
+        )
         if main_data is None or providers_data is None:
             return None
 
@@ -141,6 +148,8 @@ class TMDBClient:
         providers: list[Provider] = []
         if providers_data is not None:
             providers: list[Provider] = self._parse_providers_data(providers_data) if providers_data else []
+
+        credits_parsed = self._parse_credits_data(credits_data)
 
         return TMDBMovie(
             id=movie_id,
@@ -157,6 +166,7 @@ class TMDBClient:
             genres=main_parsed.get("genres"),
             vote_average=main_parsed.get("vote_average"),
             providers=providers,
+            credits=credits_parsed,
         )
 
     def _parse_movie_data(self, data: dict) -> dict | None:
@@ -268,6 +278,32 @@ class TMDBClient:
                         bucket.regions.append(region_entry)
 
         return list(buckets.values())
+
+    def _parse_credits_data(self, data: dict) -> list[dict]:
+        """
+        Parse credits data from TMDB API response and return a dictionary of credits information.
+
+        Args:
+            data (dict): The raw JSON from the TMDB API response for credits.
+        Returns:
+            list[dict]: A list of dicts with the keys: name, original_name, role, character_name, gender.
+        """
+        credits: list[dict] = []
+        if not data:
+            return credits
+        for cast_member in data.get("cast", []):
+            if not cast_member:
+                continue
+            credits.append(
+                {
+                    "name": cast_member.get("name"),
+                    "original_name": cast_member.get("original_name"),
+                    "role": cast_member.get("known_for_department"),
+                    "character_name": cast_member.get("character"),
+                    "gender": "female" if cast_member.get("gender") == 1 else "male",
+                }
+            )
+        return credits
 
     def _get_justwatch_node_id(self, movie: TMDBMovie, country: str) -> str | None:
         """
@@ -455,7 +491,7 @@ class TMDBClient:
                 if e.status == 404:
                     # if the movie is not found, return an empty list
                     return []
-                raise
+                raise e
 
         data = await fetch(url, params)
         if not data:
