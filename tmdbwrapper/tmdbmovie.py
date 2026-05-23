@@ -182,6 +182,7 @@ class ProviderName(Enum):
     MYMOVIES_ONE = "MYmovies One"
     NEON_TV = "Neon TV"
     NETFLIX = "Netflix"
+    NETMOVIES = "NetMovies"
     NETZKINO = "Netzkino"
     NIGHT_FLIGHT_PLUS = "Night Flight Plus"
     NOW_TV = "Now TV"
@@ -511,6 +512,7 @@ class Provider:
         ProviderName.MYMOVIES_ONE.value: {"mymovies one", "my movies one"},
         ProviderName.NEON_TV.value: {"neon tv"},
         ProviderName.NETFLIX.value: {"netflix", "netflix standard with ads", "netflix kids"},
+        ProviderName.NETMOVIES.value: {"netmovies", "net movies"},
         ProviderName.NETZKINO.value: {"netzkino"},
         ProviderName.NIGHT_FLIGHT_PLUS.value: {"night flight plus", "night flight+"},
         ProviderName.NOW_TV.value: {"now tv"},
