@@ -4,10 +4,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import ClassVar
 
+from tmdbwrapper.imdb import IMDBMovie
+
 
 class ProviderName(Enum):
     """Canonical provider names."""
 
+    ABC = "ABC"
     ABC_IVIEW = "ABC iview"
     ACONTRA_PLUS = "Acontra Plus"
     ACONTRA_PLUS_AMAZON_CHANNEL = "Acontra Plus Amazon Channel"
@@ -15,6 +18,8 @@ class ProviderName(Enum):
     ACORNTV_AMAZON_CHANNEL = "AcornTV Amazon Channel"
     ACORNTV_APPLE_TV = "Acorn TV Apple TV"
     ACTION_MAX_AMAZON_CHANNEL = "Action Max Amazon Channel"
+    ADULT_SWIM = "Adult Swim"
+    ALLBLK = "ALLBLK"
     ALLENTE = "Allente"
     ALLESKINO = "Alleskino"
     ALLESKINO_AMAZON_CHANNEL = "Alleskino Amazon Channel"
@@ -36,6 +41,8 @@ class ProviderName(Enum):
     ARTHOUSE_CNMA_AMAZON_CHANNEL = "Arthouse CNMA Amazon Channel"
     ASIANCRUSH = "AsianCrush"
     ATRES_PLAYER = "Atres Player"
+    A_AND_E = "A&E"
+    BBC_AMERICA = "BBC America"
     BBC_IPLAYER = "BBC iPlayer"
     BBOX_VOD = "Bbox VOD"
     BEAMAFILM = "Beamafilm"
@@ -52,11 +59,13 @@ class ProviderName(Enum):
     BRITBOX = "BritBox"
     BRITBOX_AMAZON_CHANNEL = "BritBox Amazon Channel"
     BRITBOX_APPLE_TV_CHANNEL = "BritBox Apple TV Channel"
+    BYUTV = "BYUtv"
     CANAL_PLUS = "Canal+"
     CANAL_VOD = "Canal VOD"
     CATCHPLAY = "Catchplay"
     CDA_PREMIUM = "CDA Premium"
     CG_TV_STREAMING = "CG TV STREAMING"
+    CHAI_FLICKS = "Chai Flicks"
     CHANNEL_4_PLUS = "Channel 4 Plus"
     CHILI = "CHILI"
     CINEASTERNA = "Cineasterna"
@@ -83,8 +92,10 @@ class ProviderName(Enum):
     CURZON_HOME_CINEMA = "Curzon Home Cinema"
     CURZON_AMAZON_CHANNEL = "Curzon Amazon Channel"
     DANIME_AMAZON_CHANNEL = "dAnime Amazon Channel"
+    DEKKOO = "Dekkoo"
     DISCOVERY_PLUS = "Discovery+"
     DISCOVERY_PLUS_AMAZON_CHANNEL = "Discovery+ Amazon Channel"
+    DISNEYNOW = "DisneyNOW"
     DISNEY_PLUS = "Disney Plus"
     DISNEY_PLUS_AMAZON_CHANNEL = "Disney+ Amazon Channel"
     DOCPLAY = "DocPlay"
@@ -92,9 +103,11 @@ class ProviderName(Enum):
     DOCSVILLE = "DOCSVILLE"
     DOCURAMAFILMS_AMAZON_CHANNEL = "DocuramaFilms Amazon Channel"
     DRAKEN_FILMS = "Draken Films"
+    DRTV = "DRTV"
     ELISA_VIIHDE = "Elisa Viihde"
     ETERNAL_FAMILY = "Eternal Family"
     FANDANGO_AT_HOME = "Fandango At Home"
+    FANDOR = "Fandor"
     FANDOR_AMAZON_CHANNEL = "Fandor Amazon Channel"
     FAR_EAST_AMAZON_CHANNEL = "Far East Amazon Channel"
     FAWESOME = "Fawesome"
@@ -105,6 +118,7 @@ class ProviderName(Enum):
     FILMO = "FILMO"
     FILMOTEKET = "Filmoteket"
     FILMSTRIBEN = "Filmstriben"
+    FILMTASTIC = "Filmtastic"
     FLIXFLING = "FlixFling"
     FLIXHOUSE = "FlixHouse"
     FLIXOLE = "FlixOlé"
@@ -113,6 +127,7 @@ class ProviderName(Enum):
     FOD = "FOD"
     FOD_CHANNEL_AMAZON_CHANNEL = "FOD Channel Amazon Channel"
     FOXTEL_NOW = "Foxtel Now"
+    FREEFORM = "Freeform"
     FREENET_MEINVOD = "Freenet meinVOD"
     FUBOTV = "fuboTV"
     FXNOW = "FXNow"
@@ -124,9 +139,13 @@ class ProviderName(Enum):
     HBO_MAX = "HBO Max"
     HBO_MAX_AMAZON_CHANNEL = "HBO Max Amazon Channel"
     HBO_MAX_ON_U_NEXT = "HBO Max on U-Next"
+    HERE_TV = "Here TV"
+    HIDIVE = "HiDive"
     HISTORAMA = "Historama"
     HISTORAMA_AMAZON_CHANNEL = "Historama Amazon Channel"
     HISTORAMA_APPLE_TV_CHANNEL = "Historama Apple TV Channel"
+    HISTORY_VAULT = "History Vault"
+    HI_YAH = "Hi-YAH"
     HOICHOI = "Hoichoi"
     HOICHOI_AMAZON_CHANNEL = "Hoichoi Amazon Channel"
     HOICHOI_APPLE_TV_CHANNEL = "Hoichoi Apple TV Channel"
@@ -140,7 +159,9 @@ class ProviderName(Enum):
     HUNGAMA_PLAY = "Hungama Play"
     ICITOUTV = "iciTouTV"
     IFLIX = "iflix"
+    INDIEFLIX = "IndieFlix"
     INFINITY_SELECTION_AMAZON_CHANNEL = "Infinity Selection Amazon Channel"
+    IQIYI = "iQIYI"
     ITVX_PREMIUM = "ITVX Premium"
     IWONDER_FULL_AMAZON_CHANNEL = "iWonder Full Amazon Channel"
     JIOHOTSTAR = "JioHotstar"
@@ -151,9 +172,13 @@ class ProviderName(Enum):
     KINO_ON_DEMAND = "Kino on Demand"
     KINOPOISK = "Kinopoisk"
     KIRJASTOKINO = "Kirjastokino"
+    KLASSIKI = "Klassiki"
+    KOCOWA = "Kocowa"
     KPN = "KPN"
     LACINETEK = "LaCinetek"
     LEPSI_TV = "Lepsi TV"
+    LIFETIME = "Lifetime"
+    LIFETIME_MOVIE_CLUB = "Lifetime Movie Club"
     LINE_TV = "LINE TV"
     LIONSGATE_PLAY = "Lionsgate Play"
     LIONSGATE_PLAY_AMAZON_CHANNEL = "Lionsgate Play Amazon Channel"
@@ -168,6 +193,7 @@ class ProviderName(Enum):
     MGM_PLUS = "MGM Plus"
     MGM_PLUS_AMAZON_CHANNEL = "MGM+ Amazon Channel"
     MGM_PLUS_ROKU_PREMIUM_CHANNEL = "MGM Plus Roku Premium Channel"
+    MHZ_CHOICE = "Mhz Choice"
     MIDNIGHT_FACTORY_AMAZON_CHANNEL = "MIDNIGHT FACTORY Amazon Channel"
     MIDNIGHT_PULP = "Midnight Pulp"
     MIDNIGHT_PULP_AMAZON_CHANNEL = "Midnight Pulp Amazon Channel"
@@ -180,11 +206,13 @@ class ProviderName(Enum):
     MUBI = "MUBI"
     MUBI_AMAZON_CHANNEL = "MUBI Amazon Channel"
     MYMOVIES_ONE = "MYmovies One"
+    NBC = "NBC"
     NEON_TV = "Neon TV"
     NETFLIX = "Netflix"
     NETMOVIES = "NetMovies"
     NETZKINO = "Netzkino"
     NIGHT_FLIGHT_PLUS = "Night Flight Plus"
+    NORDISK_FILM_PLUS = "Nordisk Film+"
     NOW_TV = "Now TV"
     NOW_TV_CINEMA = "Now TV Cinema"
     OKKO = "Okko"
@@ -200,6 +228,7 @@ class ProviderName(Enum):
     PARAMOUNT_PLUS_ROKU_PREMIUM_CHANNEL = "Paramount+ Roku Premium Channel"
     PATHE_HOME = "Pathé Home"
     PATHE_THUIS = "Pathé Thuis"
+    PBS = "PBS"
     PEACOCK = "Peacock"
     PHILO = "Philo"
     PILOT_WP = "Pilot WP"
@@ -207,9 +236,11 @@ class ProviderName(Enum):
     PLEX = "Plex"
     PLEX_CHANNEL = "Plex Channel"
     POLSAT_BOX_GO = "Polsat Box Go"
+    PREMIER = "Premier"
     PREMIERE_MAX = "Premiere Max"
     PREMIERY_CANAL_PLUS = "Premiery Canal+"
     PRIMA_PLUS = "Prima Plus"
+    PURE_FLIX = "Pure Flix"
     QUEENS_CLUB = "Queens Club"
     QUEENS_CLUB_AMAZON_CHANNEL = "Queens Club Amazon Channel"
     RAKUTEN_TV = "Rakuten TV"
@@ -217,6 +248,7 @@ class ProviderName(Enum):
     RETROCRUSH = "Retrocrush"
     RETROCRUSH_AMAZON_CHANNEL = "RetroCrush Amazon Channel"
     REVEEL = "Reveel"
+    REVRY = "Revry"
     RTBF_AUVIO = "RTBF Auvio"
     RTL_PLUS = "RTL+"
     RTL_PLUS_MAX_AMAZON_CHANNEL = "RTL+ Max Amazon Channel"
@@ -236,6 +268,7 @@ class ProviderName(Enum):
     SKY_GO = "Sky Go"
     SKY_STORE = "Sky Store"
     SKY_X = "Sky X"
+    SLING_TV_ORANGE_AND_BLUE = "Sling TV Orange and Blue"
     SONY_LIV = "Sony Liv"
     SONY_ONE_AMAZON_CHANNEL = "Sony One Amazon Channel"
     SONY_PICTURES_AMAZON_CHANNEL = "Sony Pictures Amazon Channel"
@@ -253,8 +286,11 @@ class ProviderName(Enum):
     SUNDANCE_NOW = "Sundance Now"
     SUNDANCE_NOW_AMAZON_CHANNEL = "Sundance Now Amazon Channel"
     SUNDANCE_NOW_APPLE_TV_CHANNEL = "Sundance Now Apple TV Channel"
+    SUN_NXT = "Sun Nxt"
     SUPERFRESH_AMAZON_CHANNEL = "Superfresh Amazon Channel"
     SVT = "SVT"
+    TBS = "TBS"
+    TCM = "TCM"
     TELE_QUEBEC = "Tele Quebec"
     TELE2_PLAY = "Tele2 Play"
     TELECINE = "Telecine"
@@ -263,8 +299,11 @@ class ProviderName(Enum):
     TELETOON_PLUS_AMAZON_CHANNEL = "TELETOON+ Amazon Channel"
     TELIA_PLAY = "Telia Play"
     TF1_PLUS = "TF1+"
+    THE_CW = "The CW"
+    THE_ROKU_CHANNEL = "The Roku Channel"
     TIMVISION = "Timvision"
     TIVIFY = "Tivify"
+    TNT = "TNT"
     TOD = "TOD"
     TOD_TV = "TOD TV"
     TRIART_PLAY = "TriArt Play"
@@ -272,7 +311,9 @@ class ProviderName(Enum):
     TV_2_PLAY = "TV 2 Play"
     TV_PLUS = "TV+"
     TV2_SKYSHOWTIME = "TV2 Skyshowtime"
+    TVIGLE = "TvIgle"
     TVING = "TVING"
+    TVNZ_PLUS = "TVNZ+"
     TVP = "TVP"
     U_NEXT = "U-NEXT"
     UNIVERSAL_PLUS_AMAZON_CHANNEL = "Universal+ Amazon Channel"
@@ -287,16 +328,20 @@ class ProviderName(Enum):
     VIDEOLAND = "Videoland"
     VIDEOLOAD = "Videoload"
     VIDIO = "Vidio"
+    VIMEO = "Vimeo"
     VIVA_BY_VIDEOFUTUR = "VIVA by videofutur"
+    VIX = "VIX"
     VIX_GRATIS_AMAZON_CHANNEL = "Vix Gratis Amazon Channel"
     WATCHA = "Watcha"
     WAVVE = "wavve"
     WOW = "WOW"
     WOW_FICTION_AMAZON_CHANNEL = "Wow Fiction Amazon Channel"
+    WWE_NETWORK = "WWE Network"
     XIVE_TV_DOCUMENTARIES_AMAZON_CHANNEL = "Xive TV Documentaries Amazon Channel"
     XUMO_PLAY = "Xumo Play"
     YLE_AREENA = "Yle Areena"
     YOUTUBE = "YouTube"
+    YOUTUBE_FREE = "YouTube Free"
     YOUTUBE_PREMIUM = "YouTube Premium"
     YOUTUBE_TV = "YouTube TV"
     VOYO = "Voyo"
@@ -311,6 +356,7 @@ class Provider:
     regions: list[dict[str, str]] = field(default_factory=list)  # region code, type (flatrate, rent, buy, ads)
 
     ALIASES: ClassVar[dict[str, set[str]]] = {
+        ProviderName.ABC.value: {"abc"},
         ProviderName.ABC_IVIEW.value: {"abc iview"},
         ProviderName.ACONTRA_PLUS.value: {"acontra plus", "acontra+"},
         ProviderName.ACONTRA_PLUS_AMAZON_CHANNEL.value: {"acontra plus amazon channel", "acontra+ amazon channel"},
@@ -318,6 +364,8 @@ class Provider:
         ProviderName.ACORNTV_AMAZON_CHANNEL.value: {"acorntv amazon channel", "acorn tv amazon channel"},
         ProviderName.ACORNTV_APPLE_TV.value: {"acorn tv apple tv", "acorntv apple tv"},
         ProviderName.ACTION_MAX_AMAZON_CHANNEL.value: {"action max amazon channel"},
+        ProviderName.ADULT_SWIM.value: {"adult swim"},
+        ProviderName.ALLBLK.value: {"allblk"},
         ProviderName.ALLENTE.value: {"allente"},
         ProviderName.ALLESKINO.value: {"alleskino"},
         ProviderName.ALLESKINO_AMAZON_CHANNEL.value: {"alleskino amazon channel"},
@@ -347,6 +395,8 @@ class Provider:
         ProviderName.ARTHOUSE_CNMA_AMAZON_CHANNEL.value: {"arthouse cnma amazon channel"},
         ProviderName.ASIANCRUSH.value: {"asiancrush"},
         ProviderName.ATRES_PLAYER.value: {"atres player"},
+        ProviderName.A_AND_E.value: {"a&e"},
+        ProviderName.BBC_AMERICA.value: {"bbc america"},
         ProviderName.BBC_IPLAYER.value: {"bbc iplayer"},
         ProviderName.BBOX_VOD.value: {"bbox vod", "bbox"},
         ProviderName.BEAMAFILM.value: {"beamafilm"},
@@ -363,11 +413,13 @@ class Provider:
         ProviderName.BRITBOX.value: {"britbox", "brit box"},
         ProviderName.BRITBOX_AMAZON_CHANNEL.value: {"britbox amazon channel"},
         ProviderName.BRITBOX_APPLE_TV_CHANNEL.value: {"britbox apple tv channel"},
+        ProviderName.BYUTV.value: {"byutv", "byu tv"},
         ProviderName.CANAL_PLUS.value: {"canal+", "canal plus"},
         ProviderName.CANAL_VOD.value: {"canal vod"},
         ProviderName.CATCHPLAY.value: {"catchplay"},
         ProviderName.CDA_PREMIUM.value: {"cda premium"},
         ProviderName.CG_TV_STREAMING.value: {"cg tv streaming"},
+        ProviderName.CHAI_FLICKS.value: {"chai flicks"},
         ProviderName.CHANNEL_4_PLUS.value: {"channel 4 plus", "channel 4+"},
         ProviderName.CHILI.value: {"chili"},
         ProviderName.CINEASTERNA.value: {"cineasterna"},
@@ -400,11 +452,13 @@ class Provider:
         ProviderName.CURZON_HOME_CINEMA.value: {"curzon home cinema"},
         ProviderName.CURZON_AMAZON_CHANNEL.value: {"curzon amazon channel"},
         ProviderName.DANIME_AMAZON_CHANNEL.value: {"danime amazon channel"},
+        ProviderName.DEKKOO.value: {"dekkoo"},
         ProviderName.DISCOVERY_PLUS.value: {"discovery +", "discovery+", "discovery plus"},
         ProviderName.DISCOVERY_PLUS_AMAZON_CHANNEL.value: {
             "discovery+ amazon channel",
             "discovery plus amazon channel",
         },
+        ProviderName.DISNEYNOW.value: {"disneynow", "disney now"},
         ProviderName.DISNEY_PLUS.value: {"disney plus", "disney+"},
         ProviderName.DISNEY_PLUS_AMAZON_CHANNEL.value: {"disney+ amazon channel"},
         ProviderName.DOCPLAY.value: {"docplay"},
@@ -412,9 +466,11 @@ class Provider:
         ProviderName.DOCSVILLE.value: {"docsville"},
         ProviderName.DOCURAMAFILMS_AMAZON_CHANNEL.value: {"docuramafilms amazon channel"},
         ProviderName.DRAKEN_FILMS.value: {"draken films"},
+        ProviderName.DRTV.value: {"drtv"},
         ProviderName.ELISA_VIIHDE.value: {"elisa viihde"},
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
         ProviderName.FANDANGO_AT_HOME.value: {"fandango at home", "fandango at home free"},
+        ProviderName.FANDOR.value: {"fandor"},
         ProviderName.FANDOR_AMAZON_CHANNEL.value: {"fandor amazon channel"},
         ProviderName.FAR_EAST_AMAZON_CHANNEL.value: {"far east amazon channel"},
         ProviderName.FAWESOME.value: {"fawesome"},
@@ -425,6 +481,7 @@ class Provider:
         ProviderName.FILMO.value: {"filmo"},
         ProviderName.FILMOTEKET.value: {"filmoteket"},
         ProviderName.FILMSTRIBEN.value: {"filmstriben"},
+        ProviderName.FILMTASTIC.value: {"filmtastic"},
         ProviderName.FLIXFLING.value: {"flixfling"},
         ProviderName.FLIXHOUSE.value: {"flixhouse"},
         ProviderName.FLIXOLE.value: {"flixolé", "flixole"},
@@ -433,6 +490,7 @@ class Provider:
         ProviderName.FOD.value: {"fod"},
         ProviderName.FOD_CHANNEL_AMAZON_CHANNEL.value: {"fod channel amazon channel"},
         ProviderName.FOXTEL_NOW.value: {"foxtel now"},
+        ProviderName.FREEFORM.value: {"freeform"},
         ProviderName.FREENET_MEINVOD.value: {"freenet meinvod"},
         ProviderName.FUBOTV.value: {"fubotv"},
         ProviderName.FXNOW.value: {"fxnow"},
@@ -444,9 +502,13 @@ class Provider:
         ProviderName.HBO_MAX.value: {"hbo max"},
         ProviderName.HBO_MAX_AMAZON_CHANNEL.value: {"hbo max  amazon channel"},
         ProviderName.HBO_MAX_ON_U_NEXT.value: {"hbo max on u-next", "hbo max on u next"},
+        ProviderName.HERE_TV.value: {"here tv"},
+        ProviderName.HIDIVE.value: {"hidive"},
         ProviderName.HISTORAMA.value: {"historama"},
         ProviderName.HISTORAMA_AMAZON_CHANNEL.value: {"historama amazon channel"},
         ProviderName.HISTORAMA_APPLE_TV_CHANNEL.value: {"historama apple tv channel"},
+        ProviderName.HISTORY_VAULT.value: {"history vault"},
+        ProviderName.HI_YAH.value: {"hi-yah", "hi yah"},
         ProviderName.HOICHOI.value: {"hoichoi"},
         ProviderName.HOICHOI_AMAZON_CHANNEL.value: {"hoichoi amazon channel"},
         ProviderName.HOICHOI_APPLE_TV_CHANNEL.value: {"hoichoi apple tv channel"},
@@ -460,7 +522,9 @@ class Provider:
         ProviderName.HUNGAMA_PLAY.value: {"hungama play"},
         ProviderName.ICITOUTV.value: {"icitoutv"},
         ProviderName.IFLIX.value: {"iflix"},
+        ProviderName.INDIEFLIX.value: {"indieflix"},
         ProviderName.INFINITY_SELECTION_AMAZON_CHANNEL.value: {"infinity selection amazon channel"},
+        ProviderName.IQIYI.value: {"iqiyi"},
         ProviderName.ITVX_PREMIUM.value: {"itvx premium"},
         ProviderName.IWONDER_FULL_AMAZON_CHANNEL.value: {"iwonder full amazon channel"},
         ProviderName.JIOHOTSTAR.value: {"jiohotstar"},
@@ -471,9 +535,13 @@ class Provider:
         ProviderName.KINO_ON_DEMAND.value: {"kino on demand"},
         ProviderName.KINOPOISK.value: {"kinopoisk"},
         ProviderName.KIRJASTOKINO.value: {"kirjastokino"},
+        ProviderName.KLASSIKI.value: {"klassiki"},
+        ProviderName.KOCOWA.value: {"kocowa"},
         ProviderName.KPN.value: {"kpn"},
         ProviderName.LACINETEK.value: {"lacinetek"},
         ProviderName.LEPSI_TV.value: {"lepsi tv"},
+        ProviderName.LIFETIME.value: {"lifetime"},
+        ProviderName.LIFETIME_MOVIE_CLUB.value: {"lifetime movie club"},
         ProviderName.LINE_TV.value: {"line tv"},
         ProviderName.LIONSGATE_PLAY.value: {"lionsgate play"},
         ProviderName.LIONSGATE_PLAY_AMAZON_CHANNEL.value: {"lionsgate play amazon channel"},
@@ -494,6 +562,7 @@ class Provider:
             "mgm plus roku premium channel",
             "mgm+ roku premium channel",
         },
+        ProviderName.MHZ_CHOICE.value: {"mhz choice"},
         ProviderName.MIDNIGHT_FACTORY_AMAZON_CHANNEL.value: {"midnight factory amazon channel"},
         ProviderName.MIDNIGHT_PULP.value: {"midnight pulp"},
         ProviderName.MIDNIGHT_PULP_AMAZON_CHANNEL.value: {"midnight pulp amazon channel"},
@@ -510,11 +579,13 @@ class Provider:
         ProviderName.MUBI.value: {"mubi"},
         ProviderName.MUBI_AMAZON_CHANNEL.value: {"mubi amazon channel"},
         ProviderName.MYMOVIES_ONE.value: {"mymovies one", "my movies one"},
+        ProviderName.NBC.value: {"nbc"},
         ProviderName.NEON_TV.value: {"neon tv"},
         ProviderName.NETFLIX.value: {"netflix", "netflix standard with ads", "netflix kids"},
         ProviderName.NETMOVIES.value: {"netmovies", "net movies"},
         ProviderName.NETZKINO.value: {"netzkino"},
         ProviderName.NIGHT_FLIGHT_PLUS.value: {"night flight plus", "night flight+"},
+        ProviderName.NORDISK_FILM_PLUS.value: {"nordisk film+", "nordisk film plus"},
         ProviderName.NOW_TV.value: {"now tv"},
         ProviderName.NOW_TV_CINEMA.value: {"now tv cinema"},
         ProviderName.OKKO.value: {"okko"},
@@ -541,6 +612,7 @@ class Provider:
         ProviderName.PARAMOUNT_PLUS_ROKU_PREMIUM_CHANNEL.value: {"paramount+ roku premium channel"},
         ProviderName.PATHE_HOME.value: {"pathé home", "pathe home"},
         ProviderName.PATHE_THUIS.value: {"pathé thuis", "pathe thuis"},
+        ProviderName.PBS.value: {"pbs"},
         ProviderName.PEACOCK.value: {"peacock", "peacock premium", "peacock premium plus"},
         ProviderName.PHILO.value: {"philo"},
         ProviderName.PILOT_WP.value: {"pilot wp"},
@@ -548,9 +620,11 @@ class Provider:
         ProviderName.PLEX.value: {"plex"},
         ProviderName.PLEX_CHANNEL.value: {"plex channel"},
         ProviderName.POLSAT_BOX_GO.value: {"polsat box go"},
+        ProviderName.PREMIER.value: {"premier"},
         ProviderName.PREMIERE_MAX.value: {"premiere max"},
         ProviderName.PREMIERY_CANAL_PLUS.value: {"premiery canal+", "premiery canal plus"},
         ProviderName.PRIMA_PLUS.value: {"prima plus", "prima+"},
+        ProviderName.PURE_FLIX.value: {"pureflix", "pure flix"},
         ProviderName.QUEENS_CLUB.value: {"queens club"},
         ProviderName.QUEENS_CLUB_AMAZON_CHANNEL.value: {"queens club amazon channel"},
         ProviderName.RAKUTEN_TV.value: {"rakuten tv"},
@@ -558,6 +632,7 @@ class Provider:
         ProviderName.RETROCRUSH.value: {"retrocrush"},
         ProviderName.RETROCRUSH_AMAZON_CHANNEL.value: {"retrocrush amazon channel"},
         ProviderName.REVEEL.value: {"reveel"},
+        ProviderName.REVRY.value: {"revry"},
         ProviderName.RTBF_AUVIO.value: {"rtbf auvio"},
         ProviderName.RTL_PLUS.value: {"rtl+", "rtl plus"},
         ProviderName.RTL_PLUS_MAX_AMAZON_CHANNEL.value: {"rtl+ max amazon channel", "rtl plus max amazon channel"},
@@ -577,6 +652,7 @@ class Provider:
         ProviderName.SKY_GO.value: {"sky go"},
         ProviderName.SKY_STORE.value: {"sky store"},
         ProviderName.SKY_X.value: {"sky x"},
+        ProviderName.SLING_TV_ORANGE_AND_BLUE.value: {"sling tv orange and blue"},
         ProviderName.SONY_LIV.value: {"sony liv"},
         ProviderName.SONY_ONE_AMAZON_CHANNEL.value: {"sony one amazon channel"},
         ProviderName.SONY_PICTURES_AMAZON_CHANNEL.value: {"sony pictures amazon channel"},
@@ -594,8 +670,11 @@ class Provider:
         ProviderName.SUNDANCE_NOW.value: {"sundance now"},
         ProviderName.SUNDANCE_NOW_AMAZON_CHANNEL.value: {"sundance now amazon channel"},
         ProviderName.SUNDANCE_NOW_APPLE_TV_CHANNEL.value: {"sundance now apple tv channel"},
+        ProviderName.SUN_NXT.value: {"sun nxt"},
         ProviderName.SUPERFRESH_AMAZON_CHANNEL.value: {"superfresh amazon channel"},
         ProviderName.SVT.value: {"svt"},
+        ProviderName.TBS.value: {"tbs"},
+        ProviderName.TCM.value: {"tcm"},
         ProviderName.TELE_QUEBEC.value: {"tele quebec"},
         ProviderName.TELE2_PLAY.value: {"tele2 play"},
         ProviderName.TELECINE.value: {"telecine"},
@@ -604,8 +683,11 @@ class Provider:
         ProviderName.TELETOON_PLUS_AMAZON_CHANNEL.value: {"teletoon+ amazon channel", "teletoon plus amazon channel"},
         ProviderName.TELIA_PLAY.value: {"telia play"},
         ProviderName.TF1_PLUS.value: {"tf1+", "tf1 plus"},
+        ProviderName.THE_CW.value: {"the cw"},
+        ProviderName.THE_ROKU_CHANNEL.value: {"the roku channel"},
         ProviderName.TIMVISION.value: {"timvision"},
         ProviderName.TIVIFY.value: {"tivify"},
+        ProviderName.TNT.value: {"tnt"},
         ProviderName.TOD.value: {"tod"},
         ProviderName.TOD_TV.value: {"tod tv"},
         ProviderName.TRIART_PLAY.value: {"triart play"},
@@ -613,7 +695,9 @@ class Provider:
         ProviderName.TV_2_PLAY.value: {"tv 2 play"},
         ProviderName.TV_PLUS.value: {"tv+"},
         ProviderName.TV2_SKYSHOWTIME.value: {"tv2 skyshowtime"},
+        ProviderName.TVIGLE.value: {"tvigle"},
         ProviderName.TVING.value: {"tving"},
+        ProviderName.TVNZ_PLUS.value: {"tvnz+", "tvnz plus"},
         ProviderName.TVP.value: {"tvp"},
         ProviderName.U_NEXT.value: {"u-next"},
         ProviderName.UNIVERSAL_PLUS_AMAZON_CHANNEL.value: {"universal+ amazon channel"},
@@ -628,16 +712,20 @@ class Provider:
         ProviderName.VIDEOLAND.value: {"videoland"},
         ProviderName.VIDEOLOAD.value: {"videoload"},
         ProviderName.VIDIO.value: {"vidio"},
+        ProviderName.VIMEO.value: {"vimeo"},
         ProviderName.VIVA_BY_VIDEOFUTUR.value: {"viva by videofutur"},
+        ProviderName.VIX.value: {"vix", "vix "},
         ProviderName.VIX_GRATIS_AMAZON_CHANNEL.value: {"vix gratis amazon channel"},
         ProviderName.WATCHA.value: {"watcha"},
         ProviderName.WAVVE.value: {"wavve"},
         ProviderName.WOW.value: {"wow"},
         ProviderName.WOW_FICTION_AMAZON_CHANNEL.value: {"wow fiction amazon channel"},
+        ProviderName.WWE_NETWORK.value: {"wwe network"},
         ProviderName.XIVE_TV_DOCUMENTARIES_AMAZON_CHANNEL.value: {"xive tv documentaries amazon channel"},
         ProviderName.XUMO_PLAY.value: {"xumo play"},
         ProviderName.YLE_AREENA.value: {"yle areena"},
         ProviderName.YOUTUBE.value: {"youtube"},
+        ProviderName.YOUTUBE_FREE.value: {"youtube free"},
         ProviderName.YOUTUBE_PREMIUM.value: {"youtube premium"},
         ProviderName.YOUTUBE_TV.value: {"youtube tv"},
         ProviderName.VOYO.value: {"voyo"},
@@ -706,6 +794,7 @@ class TMDBMovie:
         vote_average: float | None = None,
         providers: list[Provider] = [],
         credits: list[dict] = [],
+        imdb_movie: IMDBMovie = None,
     ):
         self.id = id
         self.imdb_id = imdb_id
@@ -722,6 +811,7 @@ class TMDBMovie:
         self.vote_average = vote_average
         self.providers = providers
         self.credits = credits
+        self.imdb_movie = imdb_movie
 
     def __repr__(self):
         return f"TMDBMovie(id={self.id}, title='{self.title}', original_title='{self.original_title}', year={self.year}, duration={self.duration})"

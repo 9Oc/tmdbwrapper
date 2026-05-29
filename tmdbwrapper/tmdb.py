@@ -10,6 +10,7 @@ from rich import print
 from simplejustwatchapi.justwatch import search
 from simplejustwatchapi.query import Offer
 
+from tmdbwrapper.imdb import get_imdb_movie
 from tmdbwrapper.tmdbmovie import Provider, ProviderName, TMDBMovie
 
 _active_clients = []
@@ -23,7 +24,7 @@ class TMDBClient:
         _active_clients.append(self)
 
     async def _get_session(self) -> aiohttp.ClientSession:
-        """Get or create the aiohttp session."""
+        """Get or create client's aiohttp session."""
         if self._session is None or self._session.closed:
             aiohttp_kwargs = {"timeout": aiohttp.ClientTimeout(total=30)}
             if self.proxy:
@@ -32,7 +33,7 @@ class TMDBClient:
         return self._session
 
     async def close(self):
-        """Close the aiohttp session."""
+        """Close the client's aiohttp session."""
         if self._session and not self._session.closed:
             await self._session.close()
             if self in _active_clients:
@@ -97,7 +98,11 @@ class TMDBClient:
         return movies if movies else []
 
     async def get_movie(
-        self, movie_id: str, get_alternative_titles: bool = False, get_credits: bool = False
+        self,
+        movie_id: str,
+        get_alternative_titles: bool = False,
+        get_credits: bool = False,
+        get_imdb_data: bool = True,
     ) -> TMDBMovie | None:
         """
         Build a TMDBMovie object from TMDB API data for the given movie ID.
@@ -106,6 +111,7 @@ class TMDBClient:
             movie_id (str): The TMDB movie ID to fetch data for.
             get_alternative_titles (bool): Whether to fetch alternative titles data (additional API call cost). Defaults to False.
             get_credits (bool): Whether to fetch credits data (additional API call cost). Defaults to False.
+            get_imdb_data (bool): Whether to fetch IMDb data (additional API call cost). Defaults to True.
         Returns:
             TMDBMovie | None: The TMDBMovie object if the movie is found, otherwise None.
         """
@@ -141,6 +147,12 @@ class TMDBClient:
         if main_data is None or providers_data is None:
             return None
 
+        imdb_movie = (
+            await get_imdb_movie(main_data.get("imdb_id"), session)
+            if get_imdb_data and main_data.get("imdb_id")
+            else None
+        )
+
         main_parsed = self._parse_movie_data(main_data)
 
         alternative_titles = self._parse_alternative_titles_data(alt_data) if alt_data else []
@@ -167,6 +179,7 @@ class TMDBClient:
             vote_average=main_parsed.get("vote_average"),
             providers=providers,
             credits=credits_parsed,
+            imdb_movie=imdb_movie,
         )
 
     def _parse_movie_data(self, data: dict) -> dict | None:
@@ -380,6 +393,8 @@ class TMDBClient:
             movie (TMDBMovie): The TMDBMovie to get the provider URL for.
             provider_name (ProviderName): The provider to get the URL for.
             region (str, optional): The region to get the URL from. Defaults to None.
+            year (int, optional): The release year of the movie. Defaults to None.
+                                  Providing a year will exclude all search results outside +/- 2 years of the given year.
             fuzzy_match (bool, optional): Whether to allow matching by title, year, runtime, and TMDB vote average instead of TMDB/IMDB ID. Defaults to False.
         Returns:
             str | None: The provider deep link for the movie if found, otherwise None.
