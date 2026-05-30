@@ -80,17 +80,25 @@ async def get_imdb_movie(imdb_id: str, session: aiohttp.ClientSession) -> IMDBMo
             return imdb_movie
 
         imdb_movie.id = imdb_id
-        imdb_movie.title = movie_data.get("titleText", {}).get("text")
-        imdb_movie.original_title = movie_data.get("originalTitleText", {}).get("text")
-        imdb_movie.release_year = movie_data.get("releaseYear", {}).get("year")
-        imdb_movie.release_date = movie_data.get("releaseDate", {})
-        imdb_movie.runtime_seconds = movie_data.get("runtime", {}).get("seconds")
-        imdb_movie.spoken_languages = [
-            lang.get("id") for lang in movie_data.get("spokenLanguages", {}).get("spokenLanguages", [])
-        ]
-        imdb_movie.countries_of_origin = [
-            country.get("id") for country in movie_data.get("countriesOfOrigin", {}).get("countries", [])
-        ]
-        imdb_movie.certificate = movie_data.get("certificate", {}).get("rating")
-        imdb_movie.imdb_rating = movie_data.get("ratingsSummary", {}).get("aggregateRating")
+        imdb_movie.title = movie_data.get("titleText").get("text") if movie_data.get("titleText") else None
+        imdb_movie.original_title = (
+            movie_data.get("originalTitleText").get("text") if movie_data.get("originalTitleText") else None
+        )
+        imdb_movie.release_year = movie_data.get("releaseYear").get("year") if movie_data.get("releaseYear") else None
+        imdb_movie.release_date = movie_data.get("releaseDate")
+        imdb_movie.runtime_seconds = movie_data.get("runtime").get("seconds") if movie_data.get("runtime") else None
+        imdb_movie.spoken_languages = (
+            [lang.get("id") for lang in movie_data.get("spokenLanguages", {}).get("spokenLanguages", [])]
+            if movie_data.get("spokenLanguages")
+            else []
+        )
+        imdb_movie.countries_of_origin = (
+            [country.get("id") for country in movie_data.get("countriesOfOrigin", {}).get("countries", [])]
+            if movie_data.get("countriesOfOrigin")
+            else []
+        )
+        imdb_movie.certificate = movie_data.get("certificate").get("rating") if movie_data.get("certificate") else None
+        imdb_movie.imdb_rating = (
+            movie_data.get("ratingsSummary").get("aggregateRating") if movie_data.get("ratingsSummary") else None
+        )
         return imdb_movie
