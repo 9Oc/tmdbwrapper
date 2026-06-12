@@ -1,6 +1,8 @@
 import asyncio
 import atexit
+import json
 import re
+from json import JSONDecodeError
 from typing import Iterable
 
 import aiohttp
@@ -132,6 +134,18 @@ class TMDBClient:
                     if e.status == 404:
                         return None
                     raise e
+                except (aiohttp.ContentTypeError, JSONDecodeError):
+                    text = await response.text()
+                    if not text:
+                        return None
+                    if text.lstrip().startswith("{"):
+                        return json.loads(text)
+
+                    # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
+                    match = re.search(r"\((\{.*\})\)\s*$", text, re.S)
+                    if match:
+                        return json.loads(match.group(1))
+                    return None
 
         async def _none():
             return None
@@ -141,17 +155,11 @@ class TMDBClient:
         providers_task = _fetch(watch_providers_url, params)
         credits_task = _fetch(credits_url, params) if get_credits else _none()
 
-        main_data, alt_data, providers_data, credits_data = await asyncio.gather(
-            main_task, alt_task, providers_task, credits_task
-        )
+        main_data, alt_data, providers_data, credits_data = await asyncio.gather(main_task, alt_task, providers_task, credits_task)
         if main_data is None or providers_data is None:
             return None
 
-        imdb_movie = (
-            await get_imdb_movie(main_data.get("imdb_id"), session)
-            if get_imdb_data and main_data.get("imdb_id")
-            else None
-        )
+        imdb_movie = await get_imdb_movie(main_data.get("imdb_id"), session) if get_imdb_data and main_data.get("imdb_id") else None
 
         main_parsed = self._parse_movie_data(main_data)
 
@@ -342,9 +350,7 @@ class TMDBClient:
             if (tmdb_match or imdb_match) and release_year_match:
                 return entry.entry_id
 
-            runtime_match = (
-                int(entry.runtime_minutes * 60) == movie.duration if entry.runtime_minutes and movie.duration else False
-            )
+            runtime_match = int(entry.runtime_minutes * 60) == movie.duration if entry.runtime_minutes and movie.duration else False
             title_match = entry.title.lower() == movie.title.lower() if entry.title and movie.title else False
             tmdb_score_match = entry.scoring.tmdb_score == movie.vote_average if entry.scoring else False
             if title_match and release_year_match and runtime_match and tmdb_score_match:
@@ -439,13 +445,9 @@ class TMDBClient:
                 title_match = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
                     entry.title and movie.original_title and entry.title.lower() == movie.original_title.lower()
                 )
-                release_year_match = (
-                    int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
-                )
+                release_year_match = int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
                 runtime_match = (
-                    int(entry.runtime_minutes * 60) == int(movie.duration)
-                    if entry.runtime_minutes and movie.duration
-                    else False
+                    int(entry.runtime_minutes * 60) == int(movie.duration) if entry.runtime_minutes and movie.duration else False
                 )
                 overview_match = (
                     str(entry.short_description).lower() == str(movie.overview).lower()
@@ -458,12 +460,8 @@ class TMDBClient:
                     else False
                 )
 
-                number_of_matches = sum(
-                    [title_match, release_year_match, runtime_match, overview_match, tmdb_score_match]
-                )
-                if ((tmdb_match or imdb_match) and number_of_matches >= 2) or (
-                    tmdb_match and imdb_match and number_of_matches >= 1
-                ):
+                number_of_matches = sum([title_match, release_year_match, runtime_match, overview_match, tmdb_score_match])
+                if ((tmdb_match or imdb_match) and number_of_matches >= 2) or (tmdb_match and imdb_match and number_of_matches >= 1):
                     url = self._fetch_provider_url(offers, provider_name)
                     if url:
                         return url
