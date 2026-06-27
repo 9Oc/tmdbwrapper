@@ -249,6 +249,7 @@ class ProviderName(Enum):
     RETROCRUSH_AMAZON_CHANNEL = "RetroCrush Amazon Channel"
     REVEEL = "Reveel"
     REVRY = "Revry"
+    ROKU_CHANNEL = "Roku Channel"
     RTBF_AUVIO = "RTBF Auvio"
     RTL_PLUS = "RTL+"
     RTL_PLUS_MAX_AMAZON_CHANNEL = "RTL+ Max Amazon Channel"
@@ -634,6 +635,7 @@ class Provider:
         ProviderName.RETROCRUSH_AMAZON_CHANNEL.value: {"retrocrush amazon channel"},
         ProviderName.REVEEL.value: {"reveel"},
         ProviderName.REVRY.value: {"revry"},
+        ProviderName.ROKU_CHANNEL.value: {"roku channel", "the roku channel"},
         ProviderName.RTBF_AUVIO.value: {"rtbf auvio"},
         ProviderName.RTL_PLUS.value: {"rtl+", "rtl plus"},
         ProviderName.RTL_PLUS_MAX_AMAZON_CHANNEL.value: {"rtl+ max amazon channel", "rtl plus max amazon channel"},
