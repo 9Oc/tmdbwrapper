@@ -37,6 +37,7 @@ class ProviderName(Enum):
     ARD_PLUS = "ARD Plus"
     ARD_PLUS_AMAZON_CHANNEL = "ARD Plus Amazon channel"
     ARD_PLUS_APPLE_TV_CHANNEL = "ARD Plus Apple TV channel"
+    ARTE = "Arte"
     ARTE_AMAZON_CHANNEL = "Arte Amazon Channel"
     ARTE_BOUTIQUE = "ARTE Boutique"
     ARTHAUS_PLUS = "Arthaus+"
@@ -404,6 +405,7 @@ class Provider:
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},
         ProviderName.AQUARIUS_AMAZON_CHANNEL.value: {"aquarius amazon channel"},
+        ProviderName.ARTE.value: {"arte"},
         ProviderName.ARTE_AMAZON_CHANNEL.value: {"arte amazon channel", "arte+ amazon channel", "arte amazon channels"},
         ProviderName.ARTE_BOUTIQUE.value: {"arte boutique"},
         ProviderName.ARTHAUS_PLUS.value: {"arthaus+", "arthaus plus"},
