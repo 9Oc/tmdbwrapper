@@ -18,6 +18,7 @@ class ProviderName(Enum):
     ACORNTV_AMAZON_CHANNEL = "AcornTV Amazon Channel"
     ACORNTV_APPLE_TV = "Acorn TV Apple TV"
     ACTION_MAX_AMAZON_CHANNEL = "Action Max Amazon Channel"
+    ADRENALINA_PURA_AMAZON_CHANNEL = "Adrenalina Pura Amazon channel"
     ADULT_SWIM = "Adult Swim"
     ALLBLK = "ALLBLK"
     ALLENTE = "Allente"
@@ -32,9 +33,11 @@ class ProviderName(Enum):
     AMC_PLUS_ROKU_PREMIUM_CHANNEL = "AMC+ Roku Premium Channel"
     APPLE_TV = "Apple TV"
     APPLE_TV_PLUS = "Apple TV+"
+    AQUARIUS_AMAZON_CHANNEL = "Aquarius Amazon Channel"
     ARD_PLUS = "ARD Plus"
     ARD_PLUS_AMAZON_CHANNEL = "ARD Plus Amazon channel"
     ARD_PLUS_APPLE_TV_CHANNEL = "ARD Plus Apple TV channel"
+    ARTE_AMAZON_CHANNEL = "Arte Amazon Channel"
     ARTE_BOUTIQUE = "ARTE Boutique"
     ARTHAUS_PLUS = "Arthaus+"
     ARTHOUSE_CNMA = "ArthouseCNMA"
@@ -55,6 +58,8 @@ class ProviderName(Enum):
     BLOCKBUSTER = "Blockbuster"
     BLOODY_MOVIES_AMAZON_CHANNEL = "Bloody Movies Amazon Channel"
     BLUE_TV = "blue TV"
+    BOOH_AMAZON_CHANNEL = "Booh Amazon Channel"
+    BOX_BRAZIL_PLAY_AMAZON_CHANNEL = "Box Brazil Play Amazon Channel"
     BROADWAYHD = "BroadwayHD"
     BRITBOX = "BritBox"
     BRITBOX_AMAZON_CHANNEL = "BritBox Amazon Channel"
@@ -68,6 +73,7 @@ class ProviderName(Enum):
     CHAI_FLICKS = "Chai Flicks"
     CHANNEL_4_PLUS = "Channel 4 Plus"
     CHILI = "CHILI"
+    CINDIE_AMAZON_CHANNEL = "Cindie Amazon Channel"
     CINEASTERNA = "Cineasterna"
     CINEMAS_A_LA_DEMANDE = "Cinemas a la Demande"
     CINEMAX_AMAZON_CHANNEL = "Cinemax Amazon Channel"
@@ -89,10 +95,12 @@ class ProviderName(Enum):
     CURIOSITY_STREAM = "Curiosity Stream"
     CURIOSITY_STREAM_AMAZON_CHANNEL = "Curiosity Stream Amazon Channel"
     CURIOSITY_STREAM_APPLE_TV_CHANNEL = "Curiosity Stream Apple TV Channel"
+    CURTAON_AMAZON_CHANNEL = "CurtaOn Amazon Channel"
     CURZON_HOME_CINEMA = "Curzon Home Cinema"
     CURZON_AMAZON_CHANNEL = "Curzon Amazon Channel"
     DANIME_AMAZON_CHANNEL = "dAnime Amazon Channel"
     DEKKOO = "Dekkoo"
+    DIAMOND_FILMS_AMAZON_CHANNEL = "Diamond Films Amazon Channel"
     DISCOVERY_PLUS = "Discovery+"
     DISCOVERY_PLUS_AMAZON_CHANNEL = "Discovery+ Amazon Channel"
     DISNEYNOW = "DisneyNOW"
@@ -113,6 +121,7 @@ class ProviderName(Enum):
     FAWESOME = "Fawesome"
     FETCH_TV = "Fetch TV"
     FILMBOX_PLUS = "FilmBox+"
+    FILMELIER_PLUS_AMAZON_CHANNEL = "Filmelier Plus Amazon Channel"
     FILMIN = "Filmin"
     FILMINGO = "Filmingo"
     FILMO = "FILMO"
@@ -184,6 +193,7 @@ class ProviderName(Enum):
     LIONSGATE_PLAY_AMAZON_CHANNEL = "Lionsgate Play Amazon Channel"
     LIONSGATE_PLAY_APPLE_TV_CHANNEL = "Lionsgate Play Apple TV Channel"
     LIONSGATE_PLUS_AMAZON_CHANNELS = "Lionsgate+ Amazon Channels"
+    LOOKE_AMAZON_CHANNEL = "Looke Amazon Channel"
     MAGELLAN_TV = "Magellan TV"
     MAGENTA_TV = "MagentaTV"
     MAGENTA_TV_PLUS = "Magenta TV+"
@@ -281,6 +291,7 @@ class ProviderName(Enum):
     STARZ_AMAZON_CHANNEL = "Starz Amazon Channel"
     STARZ_APPLE_TV_CHANNEL = "Starz Apple TV Channel"
     STARZ_ROKU_PREMIUM_CHANNEL = "Starz Roku Premium Channel"
+    STINGRAY_AMAZON_CHANNEL = "Stingray Amazon Channel"
     STRIM = "Strim"
     STUDIOCANAL_PRESENTS_AMAZON_CHANNEL = "Studiocanal Presents Amazon Channel"
     STUDIOCANAL_PRESENTS_APPLE_TV_CHANNEL = "STUDIOCANAL PRESENTS Apple TV Channel"
@@ -366,6 +377,7 @@ class Provider:
         ProviderName.ACORNTV_AMAZON_CHANNEL.value: {"acorntv amazon channel", "acorn tv amazon channel"},
         ProviderName.ACORNTV_APPLE_TV.value: {"acorn tv apple tv", "acorntv apple tv"},
         ProviderName.ACTION_MAX_AMAZON_CHANNEL.value: {"action max amazon channel"},
+        ProviderName.ADRENALINA_PURA_AMAZON_CHANNEL.value: {"adrenalina pura amazon channel", "adrenalina pura amazon channels"},
         ProviderName.ADULT_SWIM.value: {"adult swim"},
         ProviderName.ALLBLK.value: {"allblk"},
         ProviderName.ALLENTE.value: {"allente"},
@@ -391,6 +403,8 @@ class Provider:
         ProviderName.ARD_PLUS.value: {"ard plus", "ard+"},
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
         ProviderName.ARD_PLUS_APPLE_TV_CHANNEL.value: {"ard plus apple tv channel", "ard+ apple tv channel"},
+        ProviderName.AQUARIUS_AMAZON_CHANNEL.value: {"aquarius amazon channel"},
+        ProviderName.ARTE_AMAZON_CHANNEL.value: {"arte amazon channel", "arte+ amazon channel", "arte amazon channels"},
         ProviderName.ARTE_BOUTIQUE.value: {"arte boutique"},
         ProviderName.ARTHAUS_PLUS.value: {"arthaus+", "arthaus plus"},
         ProviderName.ARTHOUSE_CNMA.value: {"arthouse cnma", "arthousecnma"},
@@ -411,6 +425,8 @@ class Provider:
         ProviderName.BLOCKBUSTER.value: {"blockbuster"},
         ProviderName.BLOODY_MOVIES_AMAZON_CHANNEL.value: {"bloody movies amazon channel"},
         ProviderName.BLUE_TV.value: {"blue tv"},
+        ProviderName.BOOH_AMAZON_CHANNEL.value: {"booh amazon channel"},
+        ProviderName.BOX_BRAZIL_PLAY_AMAZON_CHANNEL.value: {"box brazil play amazon channel"},
         ProviderName.BROADWAYHD.value: {"broadwayhd"},
         ProviderName.BRITBOX.value: {"britbox", "brit box"},
         ProviderName.BRITBOX_AMAZON_CHANNEL.value: {"britbox amazon channel"},
@@ -424,6 +440,7 @@ class Provider:
         ProviderName.CHAI_FLICKS.value: {"chai flicks"},
         ProviderName.CHANNEL_4_PLUS.value: {"channel 4 plus", "channel 4+"},
         ProviderName.CHILI.value: {"chili"},
+        ProviderName.CINDIE_AMAZON_CHANNEL.value: {"cindie amazon channel"},
         ProviderName.CINEASTERNA.value: {"cineasterna"},
         ProviderName.CINEMAS_A_LA_DEMANDE.value: {"cinemas a la demande", "cinemas à la demande"},
         ProviderName.CINEMAX_AMAZON_CHANNEL.value: {"cinemax amazon channel"},
@@ -451,10 +468,12 @@ class Provider:
             "curiosity stream apple tv channel",
             "curiositystream apple tv channel",
         },
+        ProviderName.CURTAON_AMAZON_CHANNEL.value: {"curtaon amazon channel"},
         ProviderName.CURZON_HOME_CINEMA.value: {"curzon home cinema"},
         ProviderName.CURZON_AMAZON_CHANNEL.value: {"curzon amazon channel"},
         ProviderName.DANIME_AMAZON_CHANNEL.value: {"danime amazon channel"},
         ProviderName.DEKKOO.value: {"dekkoo"},
+        ProviderName.DIAMOND_FILMS_AMAZON_CHANNEL.value: {"diamond films amazon channel"},
         ProviderName.DISCOVERY_PLUS.value: {"discovery +", "discovery+", "discovery plus"},
         ProviderName.DISCOVERY_PLUS_AMAZON_CHANNEL.value: {
             "discovery+ amazon channel",
@@ -478,6 +497,7 @@ class Provider:
         ProviderName.FAWESOME.value: {"fawesome"},
         ProviderName.FETCH_TV.value: {"fetch tv"},
         ProviderName.FILMBOX_PLUS.value: {"filmbox+", "film box+", "filmbox plus"},
+        ProviderName.FILMELIER_PLUS_AMAZON_CHANNEL.value: {"filmelier plus amazon channel"},
         ProviderName.FILMIN.value: {"filmin", "filmin plus"},
         ProviderName.FILMINGO.value: {"filmingo"},
         ProviderName.FILMO.value: {"filmo"},
@@ -502,7 +522,7 @@ class Provider:
         ProviderName.GOOGLE_PLAY_MOVIES.value: {"google play movies"},
         ProviderName.GUIDEDOC.value: {"guidedoc"},
         ProviderName.HBO_MAX.value: {"hbo max"},
-        ProviderName.HBO_MAX_AMAZON_CHANNEL.value: {"hbo max  amazon channel"},
+        ProviderName.HBO_MAX_AMAZON_CHANNEL.value: {"hbo max  amazon channel", "hbo max amazon channel", "hbo max amazon channels"},
         ProviderName.HBO_MAX_ON_U_NEXT.value: {"hbo max on u-next", "hbo max on u next"},
         ProviderName.HERE_TV.value: {"here tv"},
         ProviderName.HIDIVE.value: {"hidive"},
@@ -550,8 +570,11 @@ class Provider:
         ProviderName.LIONSGATE_PLAY_APPLE_TV_CHANNEL.value: {"lionsgate play apple tv channel"},
         ProviderName.LIONSGATE_PLUS_AMAZON_CHANNELS.value: {
             "lionsgate+ amazon channels",
+            "lionsgate+ amazon channel",
             "lionsgate plus amazon channels",
+            "lionsgate plus amazon channel",
         },
+        ProviderName.LOOKE_AMAZON_CHANNEL.value: {"looke amazon channel"},
         ProviderName.MAGELLAN_TV.value: {"magellan tv"},
         ProviderName.MAGENTA_TV.value: {"magenta tv"},
         ProviderName.MAGENTA_TV_PLUS.value: {"magenta tv+"},
@@ -630,7 +653,7 @@ class Provider:
         ProviderName.QUEENS_CLUB.value: {"queens club"},
         ProviderName.QUEENS_CLUB_AMAZON_CHANNEL.value: {"queens club amazon channel"},
         ProviderName.RAKUTEN_TV.value: {"rakuten tv"},
-        ProviderName.RESERVA_IMOVISION_AMAZON_CHANNEL.value: {"reserva imovision amazon channel"},
+        ProviderName.RESERVA_IMOVISION_AMAZON_CHANNEL.value: {"reserva imovision amazon channel", "reserva imovision amazon channels"},
         ProviderName.RETROCRUSH.value: {"retrocrush"},
         ProviderName.RETROCRUSH_AMAZON_CHANNEL.value: {"retrocrush amazon channel"},
         ProviderName.REVEEL.value: {"reveel"},
@@ -667,6 +690,7 @@ class Provider:
         ProviderName.STARZ_AMAZON_CHANNEL.value: {"starz amazon channel"},
         ProviderName.STARZ_APPLE_TV_CHANNEL.value: {"starz apple tv channel"},
         ProviderName.STARZ_ROKU_PREMIUM_CHANNEL.value: {"starz roku premium channel"},
+        ProviderName.STINGRAY_AMAZON_CHANNEL.value: {"stingray amazon channel"},
         ProviderName.STRIM.value: {"strim"},
         ProviderName.STUDIOCANAL_PRESENTS_AMAZON_CHANNEL.value: {"studiocanal presents amazon channel"},
         ProviderName.STUDIOCANAL_PRESENTS_APPLE_TV_CHANNEL.value: {"studiocanal presents apple tv channel"},
@@ -704,7 +728,7 @@ class Provider:
         ProviderName.TVNZ_PLUS.value: {"tvnz+", "tvnz plus"},
         ProviderName.TVP.value: {"tvp"},
         ProviderName.U_NEXT.value: {"u-next"},
-        ProviderName.UNIVERSAL_PLUS_AMAZON_CHANNEL.value: {"universal+ amazon channel"},
+        ProviderName.UNIVERSAL_PLUS_AMAZON_CHANNEL.value: {"universal+ amazon channel", "universal plus amazon channel"},
         ProviderName.UNIVERSCINE.value: {"universcine"},
         ProviderName.UPC_TV.value: {"upc tv"},
         ProviderName.USA_NETWORK.value: {"usa network"},
