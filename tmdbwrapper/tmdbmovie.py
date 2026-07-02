@@ -32,6 +32,7 @@ class ProviderName(Enum):
     AMC_PLUS_APPLE_TV_CHANNEL = "AMC Plus Apple TV Channel"
     AMC_PLUS_ROKU_PREMIUM_CHANNEL = "AMC+ Roku Premium Channel"
     APPLE_TV = "Apple TV"
+    APPLE_TV_AMAZON_CHANNEL = "Apple TV Amazon Channel"
     APPLE_TV_PLUS = "Apple TV+"
     AQUARIUS_AMAZON_CHANNEL = "Aquarius Amazon Channel"
     ARD_PLUS = "ARD Plus"
@@ -195,6 +196,7 @@ class ProviderName(Enum):
     LIONSGATE_PLAY_APPLE_TV_CHANNEL = "Lionsgate Play Apple TV Channel"
     LIONSGATE_PLUS_AMAZON_CHANNELS = "Lionsgate+ Amazon Channels"
     LOOKE_AMAZON_CHANNEL = "Looke Amazon Channel"
+    LOVE_NATURE_AMAZON_CHANNEL = "Love Nature Amazon Channel"
     MAGELLAN_TV = "Magellan TV"
     MAGENTA_TV = "MagentaTV"
     MAGENTA_TV_PLUS = "Magenta TV+"
@@ -400,6 +402,7 @@ class Provider:
             "amc plus roku premium channel",
         },
         ProviderName.APPLE_TV.value: {"apple tv", "apple tv store"},
+        ProviderName.APPLE_TV_AMAZON_CHANNEL.value: {"apple tv amazon channel", "apple tv store amazon channel"},
         ProviderName.APPLE_TV_PLUS.value: {"apple tv+", "apple tv plus"},
         ProviderName.ARD_PLUS.value: {"ard plus", "ard+"},
         ProviderName.ARD_PLUS_AMAZON_CHANNEL.value: {"ard plus amazon channel"},
@@ -577,6 +580,7 @@ class Provider:
             "lionsgate plus amazon channel",
         },
         ProviderName.LOOKE_AMAZON_CHANNEL.value: {"looke amazon channel"},
+        ProviderName.LOVE_NATURE_AMAZON_CHANNEL.value: {"love nature amazon channel"},
         ProviderName.MAGELLAN_TV.value: {"magellan tv"},
         ProviderName.MAGENTA_TV.value: {"magenta tv"},
         ProviderName.MAGENTA_TV_PLUS.value: {"magenta tv+"},
