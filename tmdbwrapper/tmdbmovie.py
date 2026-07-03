@@ -863,6 +863,19 @@ class TMDBMovie:
                 return p
         return None
 
+    def get_directors(self) -> list[str]:
+        """
+        Get a list of directors names from the credits.
+
+        Returns:
+            list[str]: A list of director names, or an empty list if no directors are found/credits are empty.
+        """
+        if not self.credits:
+            return []
+        return [
+            cast_member["name"].strip() for cast_member in self.credits if cast_member["role"] == "Director" and cast_member.get("name")
+        ]
+
     @staticmethod
     def sanitize(text: str, folder: bool = False) -> str:
         """
@@ -877,6 +890,9 @@ class TMDBMovie:
         if not text:
             return ""
         s = re.sub(r'[\x00-\x1f<>:"/\\|?*\x7f\xa0]+', " ", text).strip()  # strip invalid chars for Windows/macOS/Linux
+        s = re.sub(r"[“”]", "", s)  # strip bad double quotes
+        s = re.sub(r"[‘’]", "'", s)  # fix bad apostrophe
+        s = s.replace("♥", "Heart")
         if folder:
             s = re.sub(r"\s+", " ", s)
             s = re.sub(r"[‐–—⁃]", "-", s)  # replace bad hyphens
@@ -887,6 +903,10 @@ class TMDBMovie:
             s = s.strip(".")
             s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # fix bad hyphen types
             s = s.replace(",.", ".")
+            s = s.replace(".,", ".")
+            s = s.removesuffix(",")
+            s = s.replace(";.", ".")
+            s = s.removesuffix(";")
         if os.name == "nt":
             s = TMDBMovie.make_windows_safe(s)
         return s.strip() or ""
