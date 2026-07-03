@@ -313,6 +313,7 @@ class TMDBClient:
         if not data:
             return credits
         for cast_member in data.get("cast", []):
+            cast_member: dict
             if not cast_member:
                 continue
             credits.append(
@@ -322,6 +323,19 @@ class TMDBClient:
                     "role": cast_member.get("known_for_department"),
                     "character_name": cast_member.get("character"),
                     "gender": "female" if cast_member.get("gender") == 1 else "male",
+                }
+            )
+        for crew_member in data.get("crew", []):
+            crew_member: dict
+            if not crew_member:
+                continue
+            credits.append(
+                {
+                    "name": crew_member.get("name"),
+                    "original_name": crew_member.get("original_name"),
+                    "role": crew_member.get("job"),
+                    "character_name": None,
+                    "gender": "female" if crew_member.get("gender") == 1 else "male",
                 }
             )
         return credits
