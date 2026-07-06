@@ -348,6 +348,7 @@ class ProviderName(Enum):
     VIVA_BY_VIDEOFUTUR = "VIVA by videofutur"
     VIX = "VIX"
     VIX_GRATIS_AMAZON_CHANNEL = "Vix Gratis Amazon Channel"
+    VIU = "Viu"
     WATCHA = "Watcha"
     WAVVE = "wavve"
     WOW = "WOW"
@@ -750,6 +751,7 @@ class Provider:
         ProviderName.VIVA_BY_VIDEOFUTUR.value: {"viva by videofutur"},
         ProviderName.VIX.value: {"vix", "vix "},
         ProviderName.VIX_GRATIS_AMAZON_CHANNEL.value: {"vix gratis amazon channel"},
+        ProviderName.VIU.value: {"viu"},
         ProviderName.WATCHA.value: {"watcha"},
         ProviderName.WAVVE.value: {"wavve"},
         ProviderName.WOW.value: {"wow"},
