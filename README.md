@@ -33,6 +33,7 @@ Once your client instance is initialized, there are a few functions available:
 - get_movie
 - get_all_watch_providers
 - get_provider_url
+- get_provider_url_jw
 - search
 
 ### get_movie
@@ -51,6 +52,8 @@ Builds a TMDBMovie object containing these fields:
 - ``overview``: The short overview (synopsis) of the movie, ``None`` if TMDB has not stored an overview for the movie.
 - ``vote_average``: The average rating for the movie on TMDB, ``None`` if no users have voted on the movie.
 - ``providers``: A list of Provider objects which represent the streaming providers which the movie is on.
+- ``credits``: A list of dicts representing cast/crew with the keys: name, original name, role, character name, and gender.
+- ``imdb_movie``: An ``IMDBMovie`` object containing IMDb's information for the movie.
 ```python
 from tmdbwrapper.tmdb import TMDBClient
 from tmdbwrapper.tmdbmovie import ProviderName
@@ -65,6 +68,10 @@ Output:
 Adventures in Babysitting (1987) [14367]  
 [Provider(Disney Plus, regions=[{'ad': 'flatrate'}, {'al': 'flatrate'}, {'ar': 'flatrate'}, {'at': 'flatrate'}, {'au': 'flatrate'}, {'ba': 'flatrate'}, {'be': 'flatrate'}, {'bg': 'flatrate'}, {'bo': 'flatrate'}, {'br': 'flatrate'}, {'bz': 'flatrate'}, {'ca': 'flatrate'}, {'ch': 'flatrate'}, {'cl': 'flatrate'}, {'co': 'flatrate'}, {'cr': 'flatrate'}, {'de': 'flatrate'}, {'dk': 'flatrate'}, {'do': 'flatrate'}, {'ec': 'flatrate'}, {'ee': 'flatrate'}, {'eg': 'flatrate'}, {'es': 'flatrate'}, {'fi': 'flatrate'}, {'fr': 'flatrate'}, {'gb': 'flatrate'}, {'gt': 'flatrate'}, {'hn': 'flatrate'}, {'hr': 'flatrate'}, {'ie': 'flatrate'}, {'is': 'flatrate'}, {'it': 'flatrate'}, {'jm': 'flatrate'}, {'lc': 'flatrate'}, {'li': 'flatrate'}, {'lt': 'flatrate'}, {'lu': 'flatrate'}, {'lv': 'flatrate'}, {'me': 'flatrate'}, {'mk': 'flatrate'}, {'mx': 'flatrate'}, {'ni': 'flatrate'}, {'nl': 'flatrate'}, {'no': 'flatrate'}, {'nz': 'flatrate'}, {'pa': 'flatrate'}, {'pe': 'flatrate'}, {'ph': 'flatrate'}, {'pt': 'flatrate'}, {'py': 'flatrate'}, {'rs': 'flatrate'}, {'se': 'flatrate'}, {'si': 'flatrate'}, {'sm': 'flatrate'}, {'sv': 'flatrate'}, {'tr': 'flatrate'}, {'tt': 'flatrate'}, {'us': 'flatrate'}, {'uy': 'flatrate'}, {'ve': 'flatrate'}]), Provider(Apple TV, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'ca': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'us': 'buy'}, {'us': 'rent'}, {'za': 'buy'}, {'za': 'rent'}]), Provider(Amazon Prime Video, regions=[{'au': 'buy'}, {'be': 'rent'}, {'ca': 'buy'}, {'ca': 'rent'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'gg': 'buy'}, {'gg': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'se': 'rent'}, {'us': 'buy'}, {'us': 'rent'}]), Provider(Google Play Movies, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'es': 'buy'}, {'es': 'rent'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'hu': 'buy'}, {'hu': 'rent'}, {'ie': 'buy'}, {'ie': 'rent'}, {'nz': 'buy'}, {'pl': 'buy'}, {'pl': 'rent'}, {'sk': 'buy'}, {'sk': 'rent'}, {'ua': 'buy'}, {'ua': 'rent'}, {'us': 'buy'}]), Provider(YouTube, regions=[{'au': 'buy'}, {'ca': 'buy'}, {'fr': 'buy'}, {'fr': 'rent'}, {'gb': 'buy'}, {'gb': 'rent'}, {'pl': 'buy'}, {'pl': 'rent'}, {'us': 'buy'}]), Provider(CosmoGo, regions=[{'ca': 'buy'}, {'ca': 'rent'}]), Provider(Crave, regions=[{'ca': 'flatrate'}]), Provider(Crave Amazon Channel, regions=[{'ca': 'flatrate'}]), Provider(Tubi TV, regions=[{'ca': 'ads'}]), Provider(MovistarTV, regions=[{'cl': 'flatrate'}, {'co': 'flatrate'}]), Provider(More TV, regions=[{'ru': 'flatrate'}]), Provider(Fandango At Home, regions=[{'us': 'buy'}, {'us': 'rent'}])]
 """
+
+# By default, credits and alternative titles data are not requested as they each require an additional api call
+# You can enable credits and alternative titles requests with get_movie arguments
+movie = await client.get_movie(14367, get_alternative_titles=True, get_credits=True)
 
 # If you want to get a specific Provider from a TMDBMovie object, you can call get_provider.
 print(movie.get_provider(ProviderName.MOVISTARTV))
@@ -112,6 +119,22 @@ print(provider_url)
 """
 Output:  
 https://tv.apple.com/ar/movie/harry-potter-y-la-piedra-filosofal/umc.cmc.55wxtmrughu40phd8lgr6qejr?at=1000l3V2&ct=app_tv&itscg=30200&itsct=justwatch_tv&playableId=tvs.sbd.9001%3A314918278
+"""
+```
+
+### get_provider_url_jw
+Gets the deep link for the given JustWatch URL, provider name, and optional region.  
+```python
+from tmdbwrapper.tmdb import TMDBClient
+from tmdbwrapper.tmdbmovie import ProviderName
+
+client = TMDBClient("tmdb_api_key")
+url = await client.get_provider_url_jw("https://www.justwatch.com/es/pelicula/la-llegada", ProviderName.NETFLIX, region="PT")
+print(url)
+
+"""
+Output:  
+https://www.netflix.com/title/80117799
 """
 ```
 

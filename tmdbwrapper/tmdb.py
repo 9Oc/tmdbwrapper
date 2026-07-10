@@ -3,12 +3,16 @@ import atexit
 import json
 import re
 from json import JSONDecodeError
+from re import Match
 from typing import Iterable
+from urllib.parse import unquote, urlparse
 
 import aiohttp
 import requests
 from aiohttp_socks import ProxyConnector
+from bs4 import BeautifulSoup
 from rich import print
+from simplejustwatchapi import details
 from simplejustwatchapi.justwatch import search
 from simplejustwatchapi.query import Offer
 
@@ -396,6 +400,88 @@ class TMDBClient:
                         return url
 
         return None
+
+    def _parse_justwatch_node_id(self, justwatch_url: str, justwatch_html: str) -> str | None:
+        """
+        Parse the JustWatch node ID from the given JustWatch URL and HTML content.
+
+        Args:
+            justwatch_url (str): The JustWatch URL to parse the node ID from.
+            justwatch_html (str): The HTML content of the JustWatch page.
+        Returns:
+            str | None: The JustWatch node ID if found, otherwise None.
+        """
+        path: str = urlparse(justwatch_url).path
+        path = re.escape(path).replace("/", r"\\u002F")  # e.g. /ph/movie/spider-man-homecoming
+        soup = BeautifulSoup(justwatch_html, "lxml")
+        script = soup.find("script", id="__NUXT_DATA__")
+        if script:
+            blob_text: str = script.string or script.get_text()
+            pattern = re.compile(
+                r'urlV2\(\{\\"fullPath\\":\\"' + path + r'\\"(?:,\\"site\\":\\"\w+\\")?\}\).*?'
+                r'node\(\{\\"id\\":\\"([^"\\]+)\\"\}\)',
+                re.DOTALL,
+            )
+            match: Match[str] | None = pattern.search(blob_text)
+            if match:
+                return match.group(1)
+
+        apollo_text: str | None = None
+        for script in soup.find_all("script"):
+            text = script.string or script.get_text()
+            if text and "__APOLLO_STATE__" in text:
+                apollo_text = text
+                break
+
+        if apollo_text:
+            pattern = re.compile(
+                r'"fullPath":"' + path + r'".*?"node":\{"type":"id","generated":false,"id":"(?:Movie|Show):([^"]+)"',
+                re.DOTALL,
+            )
+            match = pattern.search(apollo_text)
+            if match:
+                return match.group(1)
+
+        return None
+
+    async def get_provider_url_jw(self, justwatch_url: str, provider_name: ProviderName, region: str = None) -> str | None:
+        """
+        Get the deep link for the given JustWatch URL on the specified provider.
+        Optionally provide a region to get the deep link from that region.
+        If no region is provided, defaults to the region found in the JustWatch URL.
+
+        Args:
+            justwatch_url (str): The JustWatch URL to get the provider URL for.
+            provider_name (ProviderName): The provider to get the URL for.
+            region (str, optional): The region to get the URL from. Defaults to None.
+        Returns:
+            str | None: The provider deep link for the given JustWatch URL if found, otherwise None.
+        """
+        justwatch_url = unquote(justwatch_url)  # unquote the URL to handle any percent-encoded characters
+        parsed = urlparse(justwatch_url)
+        parts = parsed.path.split("/")  # ['', 'ph', 'movie', 'john-wick-chapter-4']
+        if len(parts) < 2 or not parts[1]:
+            raise ValueError(f"Invalid JustWatch URL path: {parsed.path}")
+        # if no region is given, get it from the URL
+        if not region:
+            url_region = parts[1].lower()
+            if url_region == "uk":  # simplejustwatchapi uses "gb" for uk region
+                url_region = "gb"
+            region = url_region
+
+        session = await self._get_session()
+        headers = {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Accept-Language": "en-US,en;q=0.9",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0",
+        }
+        async with await session.get(justwatch_url, headers=headers) as resp:
+            resp.raise_for_status()
+            jw_html = await resp.text()
+            node_id = self._parse_justwatch_node_id(justwatch_url, jw_html)
+
+        justwatch_node = details(node_id=node_id, country=region.upper())
+        return self._fetch_provider_url(justwatch_node.offers, provider_name) if justwatch_node else None
 
     def get_provider_url(
         self,

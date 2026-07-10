@@ -891,7 +891,29 @@ class TMDBMovie:
         """
         if not text:
             return ""
-        s = re.sub(r'[\x00-\x1f<>:"/\\|?*\x7f\xa0]+', " ", text).strip()  # strip invalid chars for Windows/macOS/Linux
+
+        def clean_parens(text):
+            def repl(m):
+                s = m.string
+                start, end = m.start(), m.end()  # end is index after the ')'
+
+                # left '(' checks
+                left_before = start == 0 or s[start - 1] == " "
+                left_after = start + 1 < len(s) and s[start + 1] == " "
+                left_ok = left_before or left_after
+
+                # right ')' checks
+                right_after = end == len(s) or s[end] == " "
+                right_before = end - 2 >= 0 and s[end - 2] == " "
+                right_ok = right_after or right_before
+
+                if left_ok and right_ok:
+                    return m.group(0)[1:-1]  # strip the parens
+                return m.group(0)  # leave unchanged
+
+            return re.sub(r"\([^()]*\)", repl, text)
+
+        s = re.sub(r'[\x00-\x1f<>:："/\\|?*\x7f\xa0]+', " ", text).strip()  # strip invalid chars for Windows/macOS/Linux
         s = re.sub(r"[“”]", "", s)  # strip bad double quotes
         s = re.sub(r"[‘’]", "'", s)  # fix bad apostrophe
         s = s.replace("♥", "Heart")
@@ -899,18 +921,37 @@ class TMDBMovie:
             s = re.sub(r"\s+", " ", s)
             s = re.sub(r"[‐–—⁃]", "-", s)  # replace bad hyphens
         else:
-            s = s.replace("…", ".")
-            s = re.sub(r"\s+", ".", s)
-            s = re.sub(r"\.+", ".", s)
-            s = s.strip(".")
-            s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # fix bad hyphen types
-            s = s.replace(",.", ".")
-            s = s.replace(".,", ".")
+            s = s.replace("…", ".")  # strip unicode ellipsis
+            s = re.sub(r"!+", "!", s)
+            s = s.replace(" ! ", " ")
+            s = s.replace("! ", " ")
+            s = s.replace(" !", " ")
+            s = s.removesuffix("!")
+            s = s.removeprefix("!")
+            s = re.sub(r"¡+", "¡", s)
+            s = s.replace("¡", " ")
+            s = re.sub(r"¿+", "¿", s)
+            s = s.replace("¿", " ")
+            s = re.sub(r",+", ",", s)  # strip commas
+            s = s.replace(",", " ")
+            s = clean_parens(s)  # clean un-needed parenthesis
+            s = s.replace("-)", " ")  # fix weird title format
+            s = s.replace("(-", " ")
+            s = re.sub(r"~+", "~", s)  # strip tildes (fking weebs)
+            s = s.replace("~", " ")
+            s = re.sub(r"\s+", ".", s).strip()  # normalize whitespace to periods
+            s = re.sub(r"\.+", ".", s)  # collapse multiple periods to single period
+            s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # remove un-needed hyphens between periods
+            s = s.removesuffix("-")
+            s = s.removeprefix("-")
+            s = s.replace(".-", ".")
+            s = s.replace("-.", ".")
             s = s.removesuffix(",")
             s = s.replace(";.", ".")
             s = s.removesuffix(";")
+            s = s.strip(".")
         if os.name == "nt":
-            s = TMDBMovie.make_windows_safe(s)
+            s = TMDBMovie.make_windows_safe(s)  # sanitize reserved device names for Windows users
         return s.strip() or ""
 
     @staticmethod
