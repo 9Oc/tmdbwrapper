@@ -434,6 +434,15 @@ class TMDBClient:
                 break
 
         if apollo_text:
+            try:
+                apollo_state = json.loads(apollo_text.split("window.__APOLLO_STATE__=", 1)[1].rstrip(";"))
+                query_key = f'urlV2({{"fullPath":"{path}","site":"www"}})'
+                url_ref = apollo_state["ROOT_QUERY"][query_key]["id"]
+                movie_ref = apollo_state[url_ref]["node"]["id"]
+                return apollo_state[movie_ref]["id"]
+            except Exception:
+                pass  # ignore parsing errors
+            # fallback to regex
             pattern = re.compile(
                 r'"fullPath":"' + path + r'".*?"node":\{"type":"id","generated":false,"id":"(?:Movie|Show):([^"]+)"',
                 re.DOTALL,
