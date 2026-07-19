@@ -5,7 +5,7 @@ import re
 from json import JSONDecodeError
 from re import Match
 from typing import Iterable
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 import aiohttp
 import requests
@@ -516,6 +516,23 @@ class TMDBClient:
         """
         if not movie or not provider_name:
             return None
+        # mercado play is not exposed in the public graphql api, so scrape the TMDB page for the deep link instead
+        if provider_name == ProviderName.MERCADO_PLAY:
+            tmdb_page_url = f"https://www.themoviedb.org/movie/{movie.id}/watch?translate=false&locale={region.upper() if region else 'US'}"
+            raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
+            soup = BeautifulSoup(raw_html, "lxml")
+            links = soup.find_all("a", href=True)
+            for link in links:
+                link_title = link.get("title", "")
+                if "on Mercado Play" not in link_title:
+                    continue
+                href = link["href"]
+                query_params = parse_qs(urlparse(href).query)
+                values = query_params.get("r")
+                if values:
+                    return unquote(values[0])
+            return None
+
         min_year = None
         max_year = None
         if year:
@@ -530,7 +547,7 @@ class TMDBClient:
                 movie.title,
                 country=region_name.upper(),
                 language="en",
-                count=20,
+                count=10,
                 best_only=True,
                 min_release_year=min_year,
                 max_release_year=max_year,
