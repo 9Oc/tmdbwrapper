@@ -256,6 +256,7 @@ class ProviderName(Enum):
     PURE_FLIX = "Pure Flix"
     QUEENS_CLUB = "Queens Club"
     QUEENS_CLUB_AMAZON_CHANNEL = "Queens Club Amazon Channel"
+    RAI_PLAY = "Rai Play"
     RAKUTEN_TV = "Rakuten TV"
     RESERVA_IMOVISION_AMAZON_CHANNEL = "Reserva Imovision Amazon Channel"
     RETROCRUSH = "Retrocrush"
@@ -659,6 +660,7 @@ class Provider:
         ProviderName.PURE_FLIX.value: {"pureflix", "pure flix"},
         ProviderName.QUEENS_CLUB.value: {"queens club"},
         ProviderName.QUEENS_CLUB_AMAZON_CHANNEL.value: {"queens club amazon channel"},
+        ProviderName.RAI_PLAY.value: {"rai play", "raiplay"},
         ProviderName.RAKUTEN_TV.value: {"rakuten tv"},
         ProviderName.RESERVA_IMOVISION_AMAZON_CHANNEL.value: {"reserva imovision amazon channel", "reserva imovision amazon channels"},
         ProviderName.RETROCRUSH.value: {"retrocrush"},
