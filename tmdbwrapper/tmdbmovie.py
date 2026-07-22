@@ -201,6 +201,7 @@ class ProviderName(Enum):
     MAGENTA_TV = "MagentaTV"
     MAGENTA_TV_PLUS = "Magenta TV+"
     MAXDOME_STORE = "maxdome Store"
+    MEDIASET_INFINITY = "Mediaset Infinity"
     MEJANE = "meJane"
     MERCADO_PLAY = "Mercado Play"
     MGM_PLUS = "MGM Plus"
@@ -587,6 +588,7 @@ class Provider:
         ProviderName.MAGENTA_TV.value: {"magenta tv"},
         ProviderName.MAGENTA_TV_PLUS.value: {"magenta tv+"},
         ProviderName.MAXDOME_STORE.value: {"maxdome store"},
+        ProviderName.MEDIASET_INFINITY.value: {"mediaset infinity", "mediasetinfinity"},
         ProviderName.MEJANE.value: {"mejane"},
         ProviderName.MERCADO_PLAY.value: {"mercado play"},
         ProviderName.MGM_PLUS.value: {"mgm plus", "mgm+"},
