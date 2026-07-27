@@ -401,6 +401,26 @@ class TMDBClient:
 
         return None
 
+    def _fetch_provider_url_watch_page(self, movie_id: str, provider_name: ProviderName, region: str) -> str | None:
+        provider_map = {
+            ProviderName.MERCADO_PLAY: "on Mercado Play",
+            ProviderName.SOONER: "on Sooner",
+        }
+        tmdb_page_url = f"https://www.themoviedb.org/movie/{movie_id}/watch?translate=false&locale={region.upper() if region else 'US'}"
+        raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
+        soup = BeautifulSoup(raw_html, "lxml")
+        links = soup.find_all("a", href=True)
+        for link in links:
+            link_title = link.get("title", "").strip()
+            if not link_title.endswith(provider_map[provider_name]):
+                continue
+            href = link["href"]
+            query_params = parse_qs(urlparse(href).query)
+            values = query_params.get("r")
+            if values:
+                return unquote(values[0])
+        return None
+
     def _parse_justwatch_node_id(self, justwatch_url: str, justwatch_html: str) -> str | None:
         """
         Parse the JustWatch node ID from the given JustWatch URL and HTML content.
@@ -517,21 +537,8 @@ class TMDBClient:
         if not movie or not provider_name:
             return None
         # mercado play is not exposed in the public graphql api, so scrape the TMDB page for the deep link instead
-        if provider_name == ProviderName.MERCADO_PLAY:
-            tmdb_page_url = f"https://www.themoviedb.org/movie/{movie.id}/watch?translate=false&locale={region.upper() if region else 'US'}"
-            raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
-            soup = BeautifulSoup(raw_html, "lxml")
-            links = soup.find_all("a", href=True)
-            for link in links:
-                link_title = link.get("title", "")
-                if "on Mercado Play" not in link_title:
-                    continue
-                href = link["href"]
-                query_params = parse_qs(urlparse(href).query)
-                values = query_params.get("r")
-                if values:
-                    return unquote(values[0])
-            return None
+        if provider_name == ProviderName.MERCADO_PLAY or (provider_name == ProviderName.SOONER and region and region.upper() == "DE"):
+            return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
 
         min_year = None
         max_year = None
