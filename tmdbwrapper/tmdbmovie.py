@@ -329,6 +329,7 @@ class ProviderName(Enum):
     TV_2_PLAY = "TV 2 Play"
     TV_PLUS = "TV+"
     TV2_SKYSHOWTIME = "TV2 Skyshowtime"
+    TV5_UNIS = "TV5 Unis"
     TVIGLE = "TvIgle"
     TVING = "TVING"
     TVNZ_PLUS = "TVNZ+"
@@ -734,6 +735,7 @@ class Provider:
         ProviderName.TV_2_PLAY.value: {"tv 2 play"},
         ProviderName.TV_PLUS.value: {"tv+"},
         ProviderName.TV2_SKYSHOWTIME.value: {"tv2 skyshowtime"},
+        ProviderName.TV5_UNIS.value: {"tv5 unis", "tv5+", "tv5 plus"},
         ProviderName.TVIGLE.value: {"tvigle"},
         ProviderName.TVING.value: {"tving"},
         ProviderName.TVNZ_PLUS.value: {"tvnz+", "tvnz plus"},
