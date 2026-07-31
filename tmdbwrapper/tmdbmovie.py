@@ -819,49 +819,75 @@ class Provider:
 
 
 class TMDBMovie:
+    """
+    Initializes a TMDBMovie object with the given attributes.
+
+    Args:
+        id (str): The ID of the movie.
+        imdb_id (str | None): The IMDb ID of the movie. None if not available.
+        title (str): The title of the movie.
+        year (int | str | None): The release year of the movie. Casted to int if provided as str. None if not available.
+        original_title (str | None): The original title of the movie. None if not available.
+        alternative_titles (dict[str, str]): Alternative titles of the movie. Empty dict if not available.
+        duration (int | None): Duration of the movie in minutes. None if not available.
+        original_language (str | None): Original language of the movie. None if not available.
+        spoken_languages (list[str | None]): Spoken languages in the movie. Empty list if not available.
+        origin_countries (list[str]): Origin countries of the movie. Empty list if not available.
+        genres (list[str | None] | None): Genres of the movie. Empty list if not available.
+        overview (str | None): Overview of the movie. None if not available.
+        vote_average (float | None): Average vote of the movie. None if not available.
+        providers (list[Provider]): List of providers for the movie. Empty list if not available.
+        credits (list[dict]): List of credits for the movie. Empty list if not available.
+        imdb_movie (IMDBMovie | None): The corresponding IMDb movie object. None if not available.
+    """
+
     def __init__(
         self,
         id: str,
         imdb_id: str | None,
         title: str,
-        year: int | None = None,
+        year: int | str | None = None,
         original_title: str | None = None,
         alternative_titles: dict[str, str] = None,
         duration: int | None = None,
         original_language: str | None = None,
-        spoken_languages: list[str | None] = [],
-        origin_countries: list[str] = [],
-        genres: list[str | None] = None,
+        spoken_languages: list[str] = None,
+        origin_countries: list[str] = None,
+        genres: list[str] = None,
         overview: str | None = None,
         vote_average: float | None = None,
-        providers: list[Provider] = [],
-        credits: list[dict] = [],
-        imdb_movie: IMDBMovie = None,
+        providers: list[Provider] = None,
+        credits: list[dict] = None,
+        imdb_movie: IMDBMovie | None = None,
     ):
         self.id = id
-        self.imdb_id = imdb_id
-        self.title = title
-        self.year = year
+        self.imdb_id: str | None = imdb_id
+        self.title: str = title
+        self.year: int | None = int(year) if year is not None else None
         self.original_title = original_title
-        self.alternative_titles = alternative_titles
+        self.alternative_titles = alternative_titles or {}
         self.duration = duration
         self.original_language = original_language
-        self.spoken_languages = spoken_languages
-        self.origin_countries = origin_countries
-        self.genres = genres
+        self.spoken_languages = spoken_languages or []
+        self.origin_countries = origin_countries or []
+        self.genres = genres or []
         self.overview = overview
         self.vote_average = vote_average
-        self.providers = providers
-        self.credits = credits
+        self.providers = providers or []
+        self.credits = credits or []
         self.imdb_movie = imdb_movie
 
     def __repr__(self):
-        return f"TMDBMovie(id={self.id}, title='{self.title}', original_title='{self.original_title}', year={self.year}, duration={self.duration})"
+        return f"TMDBMovie(id={self.id}, title='{self.title}', original_title='{self.original_title}', year={self.year})"
 
     def get_provider(self, provider_name: ProviderName) -> Provider | None:
         """
-        Return the Provider whose canonical_name matches `provider` (case-insensitive).
-        If not found or provider is empty, return None.
+        Get the ``Provider`` object for the given `provider_name`.
+
+        Args:
+            provider_name (ProviderName): The provider name to look for.
+        Returns:
+            Provider | None: The matching ``Provider`` object if found, otherwise None.
         """
         if not provider_name:
             return None
@@ -922,12 +948,11 @@ class TMDBMovie:
         s = re.sub(r'[\x00-\x1f<>:："/\\|?*\x7f\xa0]+', " ", text).strip()  # strip invalid chars for Windows/macOS/Linux
         s = re.sub(r"[“”]", "", s)  # strip bad double quotes
         s = re.sub(r"[‘’]", "'", s)  # fix bad apostrophe
-        s = s.replace("♥", "Heart")
         if folder:
             s = re.sub(r"\s+", " ", s)
             s = re.sub(r"[‐–—⁃]", "-", s)  # replace bad hyphens
         else:
-            s = s.replace("…", ".")  # strip unicode ellipsis
+            s = s.replace("…", ".")
             s = re.sub(r"!+", "!", s)
             s = s.replace(" ! ", " ")
             s = s.replace("! ", " ")
@@ -938,16 +963,16 @@ class TMDBMovie:
             s = s.replace("¡", " ")
             s = re.sub(r"¿+", "¿", s)
             s = s.replace("¿", " ")
-            s = re.sub(r",+", ",", s)  # strip commas
+            s = re.sub(r",+", ",", s)
             s = s.replace(",", " ")
-            s = clean_parens(s)  # clean un-needed parenthesis
-            s = s.replace("-)", " ")  # fix weird title format
+            s = clean_parens(s)
+            s = s.replace("-)", " ")
             s = s.replace("(-", " ")
-            s = re.sub(r"~+", "~", s)  # strip tildes (fking weebs)
+            s = re.sub(r"~+", "~", s)  # weebs
             s = s.replace("~", " ")
-            s = re.sub(r"\s+", ".", s).strip()  # normalize whitespace to periods
-            s = re.sub(r"\.+", ".", s)  # collapse multiple periods to single period
-            s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # remove un-needed hyphens between periods
+            s = re.sub(r"\s+", ".", s).strip()
+            s = re.sub(r"\.+", ".", s)
+            s = re.sub(r"\.(?:-|‐|–|—|⁃)\.", ".", s)  # fix bad hyphen types
             s = s.removesuffix("-")
             s = s.removeprefix("-")
             s = s.replace(".-", ".")
@@ -957,7 +982,7 @@ class TMDBMovie:
             s = s.removesuffix(";")
             s = s.strip(".")
         if os.name == "nt":
-            s = TMDBMovie.make_windows_safe(s)  # sanitize reserved device names for Windows users
+            s = TMDBMovie.make_windows_safe(s)
         return s.strip() or ""
 
     @staticmethod
@@ -966,6 +991,7 @@ class TMDBMovie:
         Sanitize Windows reserved device names from a string.
         Appends '_' to any reserved Windows device names (CON, PRN, AUX, NUL, COM1-COM9, LPT1-LPT9)
         if they would cause an OSError to be thrown by the filesystem.
+        The given string is returned unchanged if the OS is not Windows.
 
         Args:
             text (str): The input string to sanitize.

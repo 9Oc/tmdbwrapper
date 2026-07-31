@@ -55,6 +55,7 @@ async def get_imdb_movie(imdb_id: str, session: aiohttp.ClientSession) -> IMDBMo
     }
     headers: dict = {
         "Content-Type": "application/json",
+        "x-imdb-client-name": "imdb-web-next-localized",
         "x-imdb-user-country": "US",
     }
     async with session.post(GRAPHQL_ENDPOINT, json=payload, headers=headers) as resp:
