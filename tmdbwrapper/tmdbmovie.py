@@ -130,6 +130,7 @@ class ProviderName(Enum):
     FILMOTEKET = "Filmoteket"
     FILMSTRIBEN = "Filmstriben"
     FILMTASTIC = "Filmtastic"
+    FILMZIE = "Filmzie"
     FLIXFLING = "FlixFling"
     FLIXHOUSE = "FlixHouse"
     FLIXOLE = "FlixOlé"
@@ -229,6 +230,7 @@ class ProviderName(Enum):
     NORDISK_FILM_PLUS = "Nordisk Film+"
     NOW_TV = "Now TV"
     NOW_TV_CINEMA = "Now TV Cinema"
+    NPO_START = "NPO Start"
     OKKO = "Okko"
     OLDFLIX = "Oldflix"
     ONEPLAY = "Oneplay"
@@ -513,6 +515,7 @@ class Provider:
         ProviderName.FILMOTEKET.value: {"filmoteket"},
         ProviderName.FILMSTRIBEN.value: {"filmstriben"},
         ProviderName.FILMTASTIC.value: {"filmtastic"},
+        ProviderName.FILMZIE.value: {"filmzie"},
         ProviderName.FLIXFLING.value: {"flixfling"},
         ProviderName.FLIXHOUSE.value: {"flixhouse"},
         ProviderName.FLIXOLE.value: {"flixolé", "flixole"},
@@ -624,6 +627,7 @@ class Provider:
         ProviderName.NORDISK_FILM_PLUS.value: {"nordisk film+", "nordisk film plus"},
         ProviderName.NOW_TV.value: {"now tv"},
         ProviderName.NOW_TV_CINEMA.value: {"now tv cinema"},
+        ProviderName.NPO_START.value: {"npo start"},
         ProviderName.OKKO.value: {"okko"},
         ProviderName.OLDFLIX.value: {"oldflix"},
         ProviderName.ONEPLAY.value: {"oneplay"},
