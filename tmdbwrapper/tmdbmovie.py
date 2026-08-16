@@ -271,6 +271,7 @@ class ProviderName(Enum):
     RTL_PLUS = "RTL+"
     RTL_PLUS_MAX_AMAZON_CHANNEL = "RTL+ Max Amazon Channel"
     RUUTU = "Ruutu"
+    RUV = "RUV"
     SF_ANYTIME = "SF Anytime"
     SFR_PLAY = "SFR Play"
     SHADOWZ = "Shadowz"
@@ -679,6 +680,7 @@ class Provider:
         ProviderName.RTL_PLUS.value: {"rtl+", "rtl plus"},
         ProviderName.RTL_PLUS_MAX_AMAZON_CHANNEL.value: {"rtl+ max amazon channel", "rtl plus max amazon channel"},
         ProviderName.RUUTU.value: {"ruutu"},
+        ProviderName.RUV.value: {"ruv"},
         ProviderName.SF_ANYTIME.value: {"sf anytime"},
         ProviderName.SFR_PLAY.value: {"sfr play"},
         ProviderName.SHADOWZ.value: {"shadowz"},
