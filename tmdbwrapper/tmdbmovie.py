@@ -198,6 +198,7 @@ class ProviderName(Enum):
     LIONSGATE_PLUS_AMAZON_CHANNELS = "Lionsgate+ Amazon Channels"
     LOOKE_AMAZON_CHANNEL = "Looke Amazon Channel"
     LOVE_NATURE_AMAZON_CHANNEL = "Love Nature Amazon Channel"
+    LTV_ONE = "LTV1"
     MAGELLAN_TV = "Magellan TV"
     MAGENTA_TV = "MagentaTV"
     MAGENTA_TV_PLUS = "Magenta TV+"
@@ -589,6 +590,7 @@ class Provider:
         },
         ProviderName.LOOKE_AMAZON_CHANNEL.value: {"looke amazon channel"},
         ProviderName.LOVE_NATURE_AMAZON_CHANNEL.value: {"love nature amazon channel"},
+        ProviderName.LTV_ONE.value: {"ltv1", "ltv one", "ltvone"},
         ProviderName.MAGELLAN_TV.value: {"magellan tv"},
         ProviderName.MAGENTA_TV.value: {"magenta tv"},
         ProviderName.MAGENTA_TV_PLUS.value: {"magenta tv+"},
