@@ -179,6 +179,7 @@ class ProviderName(Enum):
     JIOHOTSTAR = "JioHotstar"
     JOYN = "Joyn"
     JOYN_PLUS = "Joyn Plus"
+    JUPITER_PLUS = "Jupiter+"
     JUSTWATCHTV = "JustWatchTV"
     KANOPY = "Kanopy"
     KINO_ON_DEMAND = "Kino on Demand"
@@ -567,6 +568,7 @@ class Provider:
         ProviderName.JIOHOTSTAR.value: {"jiohotstar"},
         ProviderName.JOYN.value: {"joyn"},
         ProviderName.JOYN_PLUS.value: {"joyn plus", "joyn+"},
+        ProviderName.JUPITER_PLUS.value: {"jupiter+", "jupiter plus"},
         ProviderName.JUSTWATCHTV.value: {"justwatchtv", "justwatch tv"},
         ProviderName.KANOPY.value: {"kanopy"},
         ProviderName.KINO_ON_DEMAND.value: {"kino on demand"},
@@ -869,11 +871,13 @@ class TMDBMovie:
         providers: list[Provider] = None,
         credits: list[dict] = None,
         imdb_movie: IMDBMovie | None = None,
-    ):
+    ) -> None:
         self.id = id
         self.imdb_id: str | None = imdb_id
         self.title: str = title
-        self.year: int | None = int(year) if year is not None else None
+        self.year: int | None = year
+        if self.year and isinstance(self.year, str) and self.year.isdigit():
+            self.year = int(self.year)
         self.original_title = original_title
         self.alternative_titles = alternative_titles or {}
         self.duration = duration
@@ -887,8 +891,8 @@ class TMDBMovie:
         self.credits = credits or []
         self.imdb_movie = imdb_movie
 
-    def __repr__(self):
-        return f"TMDBMovie(id={self.id}, title='{self.title}', original_title='{self.original_title}', year={self.year})"
+    def __repr__(self) -> str:
+        return f"TMDBMovie(id={self.id}, title={self.title}, original_title={self.original_title}, year={self.year})"
 
     def get_provider(self, provider_name: ProviderName) -> Provider | None:
         """
@@ -934,8 +938,8 @@ class TMDBMovie:
         if not text:
             return ""
 
-        def clean_parens(text):
-            def repl(m):
+        def clean_parens(text: str) -> str:
+            def repl(m: re.Match) -> str:
                 s = m.string
                 start, end = m.start(), m.end()  # end is index after the ')'
 
