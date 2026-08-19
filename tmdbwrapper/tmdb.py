@@ -2,9 +2,10 @@ import asyncio
 import atexit
 import json
 import re
+from collections.abc import Collection
 from json import JSONDecodeError
 from re import Match
-from typing import Iterable
+from typing import Self
 from urllib.parse import parse_qs, unquote, urlparse
 
 import aiohttp
@@ -45,13 +46,36 @@ class TMDBClient:
             if self in _active_clients:
                 _active_clients.remove(self)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         """Async context manager entry."""
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Async context manager exit."""
         await self.close()
+
+    async def _fetch(self, url: str, params: dict, timeout: int = 15) -> dict | None:
+        session = await self._get_session()
+        async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
+            try:
+                response.raise_for_status()
+                return await response.json()
+            except aiohttp.ClientResponseError as e:
+                if e.status == 404:
+                    return None
+                raise
+            except (aiohttp.ContentTypeError, JSONDecodeError):
+                text = await response.text()
+                if not text:
+                    return None
+                if text.lstrip().startswith("{"):
+                    return json.loads(text)
+
+                # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
+                match = re.search(r"\((\{.*\})\)\s*$", text, re.DOTALL)
+                if match:
+                    return json.loads(match.group(1))
+                return None
 
     async def search(self, query: str, year: int | None = None, region: str | None = None) -> list[TMDBMovie] | None:
         """
@@ -64,7 +88,7 @@ class TMDBClient:
             year (int | None): The year to filter results by. Defaults to None.
             region (str | None): The region to filter results by. Defaults to None.
         Returns:
-            list[TMDBMovie]: A list of TMDBMovie objects if results are found, otherwise an empty list.
+            list[TMDBMovie] | None: A list of TMDBMovie objects if results are found, otherwise an empty list or None.
         """
         url = "https://api.themoviedb.org/3/search/movie"
         params = {
@@ -76,11 +100,8 @@ class TMDBClient:
         if region:
             params["region"] = region.lower()
 
-        proxies = {"http": self.proxy, "https": self.proxy} if self.proxy else None
-        r = requests.get(url, params=params, proxies=proxies, timeout=15)
-        r.raise_for_status()
-        data = r.json()
-        results = data.get("results", [])
+        data: dict = await self._fetch(url, params=params, timeout=15)
+        results: list[dict] = data.get("results", []) if data else []
 
         if not results:
             return []
@@ -88,12 +109,12 @@ class TMDBClient:
         # limit concurrency to avoid rate limiting
         sem = asyncio.Semaphore(5)
 
-        async def sem_get_movie(movie_id: str):
+        async def sem_get_movie(movie_id: str) -> TMDBMovie | None:
             async with sem:
                 return await self.get_movie(movie_id)
 
         # create tasks only for results that have an id
-        tasks = [asyncio.create_task(sem_get_movie(str(r["id"]))) for r in results if r.get("id") is not None]
+        tasks = [asyncio.create_task(sem_get_movie(str(r["id"]))) for r in results if r and r.get("id") is not None]
         if not tasks:
             return []
 
@@ -137,7 +158,7 @@ class TMDBClient:
                 except aiohttp.ClientResponseError as e:
                     if e.status == 404:
                         return None
-                    raise e
+                    raise
                 except (aiohttp.ContentTypeError, JSONDecodeError):
                     text = await response.text()
                     if not text:
@@ -146,12 +167,12 @@ class TMDBClient:
                         return json.loads(text)
 
                     # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
-                    match = re.search(r"\((\{.*\})\)\s*$", text, re.S)
+                    match = re.search(r"\((\{.*\})\)\s*$", text, re.DOTALL)
                     if match:
                         return json.loads(match.group(1))
                     return None
 
-        async def _none():
+        async def _none() -> None:
             return None
 
         main_task = _fetch(movie_url, params)
@@ -376,7 +397,7 @@ class TMDBClient:
 
         return None
 
-    def _fetch_provider_url(self, offers: Iterable[Offer], provider_name: ProviderName) -> str | None:
+    def _fetch_provider_url(self, offers: Collection[Offer], provider_name: ProviderName) -> str | None:
         """Fetch provider URL for a given ProviderName and list of Offers."""
 
         if not offers or not provider_name:
@@ -602,11 +623,10 @@ class TMDBClient:
                 # check by title, year, runtime, and (tmdb vote average or overview) if fuzzy_match is True
                 # this can help catch matches which have bad TMDB/IMDB ID's from JustWatch but are otherwise correct
                 # however, it can lead to false positives in some cases
-                if fuzzy_match:
-                    if title_match and release_year_match and runtime_match and tmdb_score_match or overview_match:
-                        url = self._fetch_provider_url(offers, provider_name)
-                        if url:
-                            return url
+                if fuzzy_match and title_match and release_year_match and runtime_match and tmdb_score_match or overview_match:
+                    url = self._fetch_provider_url(offers, provider_name)
+                    if url:
+                        return url
 
         return None
 
@@ -637,7 +657,7 @@ class TMDBClient:
                 if e.status == 404:
                     # if the movie is not found, return an empty list
                     return []
-                raise e
+                raise
 
         data = await fetch(url, params)
         if not data:
@@ -645,7 +665,7 @@ class TMDBClient:
         return self._parse_providers_data(data)
 
 
-def _cleanup_clients():
+def _cleanup_clients() -> None:
     """Cleanup function called at program exit."""
     if _active_clients:
         loop = asyncio.new_event_loop()
