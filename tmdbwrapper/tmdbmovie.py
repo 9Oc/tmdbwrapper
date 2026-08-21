@@ -174,6 +174,7 @@ class ProviderName(Enum):
     INDIEFLIX = "IndieFlix"
     INFINITY_SELECTION_AMAZON_CHANNEL = "Infinity Selection Amazon Channel"
     IQIYI = "iQIYI"
+    ITUNES = "Apple TV Store"
     ITVX_PREMIUM = "ITVX Premium"
     IWONDER_FULL_AMAZON_CHANNEL = "iWonder Full Amazon Channel"
     JIOHOTSTAR = "JioHotstar"
@@ -564,6 +565,7 @@ class Provider:
         ProviderName.INDIEFLIX.value: {"indieflix"},
         ProviderName.INFINITY_SELECTION_AMAZON_CHANNEL.value: {"infinity selection amazon channel"},
         ProviderName.IQIYI.value: {"iqiyi"},
+        ProviderName.ITUNES.value: {"apple tv store", "appletv store", "apple tvstore", "itunes"},
         ProviderName.ITVX_PREMIUM.value: {"itvx premium"},
         ProviderName.IWONDER_FULL_AMAZON_CHANNEL.value: {"iwonder full amazon channel"},
         ProviderName.JIOHOTSTAR.value: {"jiohotstar"},
