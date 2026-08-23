@@ -1,6 +1,6 @@
 [project]
 name = "tmdbwrapper"
-version = "1.1.4"
+version = "1.1.41"
 description = "A wrapper package for getting provider URLs from JustWatch using JustWatch directly or using a TMDB ID."
 authors = [ { name = "squash" } ]
 license = "GPL-3.0-or-later"

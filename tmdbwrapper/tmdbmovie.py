@@ -926,7 +926,9 @@ class TMDBMovie:
         if not self.credits:
             return []
         return [
-            cast_member["name"].strip() for cast_member in self.credits if cast_member["role"] == "Director" and cast_member.get("name")
+            cast_member["name"].strip()
+            for cast_member in self.credits
+            if cast_member["role"] in ("Director", "Co-Director") and cast_member.get("name")
         ]
 
     @staticmethod
