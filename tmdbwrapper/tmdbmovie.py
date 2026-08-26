@@ -252,6 +252,7 @@ class ProviderName(Enum):
     PEACOCK = "Peacock"
     PHILO = "Philo"
     PILOT_WP = "Pilot WP"
+    PLAY_SUISSE = "Play Suisse"
     PLAYER = "Player"
     PLEX = "Plex"
     PLEX_CHANNEL = "Plex Channel"
@@ -666,6 +667,7 @@ class Provider:
         ProviderName.PEACOCK.value: {"peacock", "peacock premium", "peacock premium plus"},
         ProviderName.PHILO.value: {"philo"},
         ProviderName.PILOT_WP.value: {"pilot wp"},
+        ProviderName.PLAY_SUISSE.value: {"play suisse", "playsuisse"},
         ProviderName.PLAYER.value: {"player"},
         ProviderName.PLEX.value: {"plex"},
         ProviderName.PLEX_CHANNEL.value: {"plex channel"},
