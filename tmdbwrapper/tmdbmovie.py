@@ -208,6 +208,7 @@ class ProviderName(Enum):
     MEDIASET_INFINITY = "Mediaset Infinity"
     MEJANE = "meJane"
     MERCADO_PLAY = "Mercado Play"
+    MEWATCH = "Mewatch"
     MGM_PLUS = "MGM Plus"
     MGM_PLUS_AMAZON_CHANNEL = "MGM+ Amazon Channel"
     MGM_PLUS_ROKU_PREMIUM_CHANNEL = "MGM Plus Roku Premium Channel"
@@ -605,6 +606,7 @@ class Provider:
         ProviderName.MEDIASET_INFINITY.value: {"mediaset infinity", "mediasetinfinity"},
         ProviderName.MEJANE.value: {"mejane"},
         ProviderName.MERCADO_PLAY.value: {"mercado play"},
+        ProviderName.MEWATCH.value: {"mewatch", "me watch"},
         ProviderName.MGM_PLUS.value: {"mgm plus", "mgm+"},
         ProviderName.MGM_PLUS_AMAZON_CHANNEL.value: {"mgm+ amazon channel", "mgm plus amazon channel"},
         ProviderName.MGM_PLUS_ROKU_PREMIUM_CHANNEL.value: {
