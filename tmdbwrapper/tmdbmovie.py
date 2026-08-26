@@ -187,6 +187,7 @@ class ProviderName(Enum):
     KINOPOISK = "Kinopoisk"
     KIRJASTOKINO = "Kirjastokino"
     KLASSIKI = "Klassiki"
+    KLIKFILM = "KlikFilm"
     KOCOWA = "Kocowa"
     KPN = "KPN"
     LACINETEK = "LaCinetek"
@@ -580,6 +581,7 @@ class Provider:
         ProviderName.KINOPOISK.value: {"kinopoisk"},
         ProviderName.KIRJASTOKINO.value: {"kirjastokino"},
         ProviderName.KLASSIKI.value: {"klassiki"},
+        ProviderName.KLIKFILM.value: {"klikfilm", "klik film"},
         ProviderName.KOCOWA.value: {"kocowa"},
         ProviderName.KPN.value: {"kpn"},
         ProviderName.LACINETEK.value: {"lacinetek"},
