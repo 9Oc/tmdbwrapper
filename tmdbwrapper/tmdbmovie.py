@@ -337,6 +337,7 @@ class ProviderName(Enum):
     TOD = "TOD"
     TOD_TV = "TOD TV"
     TRIART_PLAY = "TriArt Play"
+    TUBI_TV = "Tubi TV"
     TV_2 = "TV 2"
     TV_2_PLAY = "TV 2 Play"
     TV_PLUS = "TV+"
@@ -755,9 +756,10 @@ class Provider:
         ProviderName.TOD.value: {"tod"},
         ProviderName.TOD_TV.value: {"tod tv"},
         ProviderName.TRIART_PLAY.value: {"triart play"},
+        ProviderName.TUBI_TV.value: {"tubi tv", "tubitv", "tubi"},
         ProviderName.TV_2.value: {"tv 2"},
         ProviderName.TV_2_PLAY.value: {"tv 2 play", "tv2 play"},
-        ProviderName.TV_PLUS.value: {"tv+"},
+        ProviderName.TV_PLUS.value: {"tv+", "tvplus"},
         ProviderName.TV2_SKYSHOWTIME.value: {"tv2 skyshowtime"},
         ProviderName.TV4_PLAY.value: {"tv4 play", "tv4play"},
         ProviderName.TV5_UNIS.value: {"tv5 unis", "tv5+", "tv5 plus"},
