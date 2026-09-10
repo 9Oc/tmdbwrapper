@@ -126,7 +126,7 @@ class TMDBClient:
 
     async def get_movie(
         self,
-        movie_id: str,
+        movie_id: int | str,
         get_alternative_titles: bool = False,
         get_credits: bool = False,
         get_imdb_data: bool = True,
@@ -135,7 +135,7 @@ class TMDBClient:
         Build a TMDBMovie object from TMDB API data for the given movie ID.
 
         Args:
-            movie_id (str): The TMDB movie ID to fetch data for.
+            movie_id (int | str): The TMDB movie ID to fetch data for.
             get_alternative_titles (bool): Whether to fetch alternative titles data (additional API call cost). Defaults to False.
             get_credits (bool): Whether to fetch credits data (additional API call cost). Defaults to False.
             get_imdb_data (bool): Whether to fetch IMDb data (additional API call cost). Defaults to True.
@@ -143,10 +143,11 @@ class TMDBClient:
             TMDBMovie | None: The TMDBMovie object if the movie is found, otherwise None.
         """
         movie_url = f"https://api.themoviedb.org/3/movie/{movie_id}"
-        alternative_titles_url = f"https://api.themoviedb.org/3/movie/{movie_id}/alternative_titles"
-        watch_providers_url = f"https://api.themoviedb.org/3/movie/{movie_id}/watch/providers"
-        credits_url = f"https://api.themoviedb.org/3/movie/{movie_id}/credits"
-        params = {"api_key": self.api_key}
+        params = {"append_to_response": "release_dates,watch/providers", "api_key": self.api_key}
+        if get_alternative_titles:
+            params["append_to_response"] += ",alternative_titles"
+        if get_credits:
+            params["append_to_response"] += ",credits"
 
         session = await self._get_session()
 
@@ -172,50 +173,39 @@ class TMDBClient:
                         return json.loads(match.group(1))
                     return None
 
-        async def _none() -> None:
+        data: dict = await _fetch(movie_url, params)
+        if data is None:
             return None
 
-        main_task = _fetch(movie_url, params)
-        alt_task = _fetch(alternative_titles_url, params) if get_alternative_titles else _none()
-        providers_task = _fetch(watch_providers_url, params)
-        credits_task = _fetch(credits_url, params) if get_credits else _none()
+        imdb_movie = await get_imdb_movie(data.get("imdb_id"), session) if get_imdb_data and data.get("imdb_id") else None
 
-        main_data, alt_data, providers_data, credits_data = await asyncio.gather(main_task, alt_task, providers_task, credits_task)
-        if main_data is None or providers_data is None:
-            return None
-
-        imdb_movie = await get_imdb_movie(main_data.get("imdb_id"), session) if get_imdb_data and main_data.get("imdb_id") else None
-
-        main_parsed = self._parse_movie_data(main_data)
-
-        alternative_titles = self._parse_alternative_titles_data(alt_data) if alt_data else []
-
-        providers: list[Provider] = []
-        if providers_data is not None:
-            providers: list[Provider] = self._parse_providers_data(providers_data) if providers_data else []
-
-        credits_parsed = self._parse_credits_data(credits_data)
+        details: dict = self._parse_movie_details(data)
+        release_dates: list[int] = self._parse_release_dates(data.get("release_dates") or {})
+        release_year = min(release_dates) if release_dates else None
+        alternative_titles = self._parse_alternative_titles(data.get("alternative_titles") or {})
+        providers: list[Provider] = self._parse_providers(data.get("watch/providers") or {})
+        credits = self._parse_credits_data(data.get("credits") or {})
 
         return TMDBMovie(
             id=movie_id,
-            imdb_id=main_parsed.get("imdb_id"),
-            title=main_parsed.get("title"),
-            original_title=main_parsed.get("original_title"),
+            imdb_id=details.get("imdb_id"),
+            title=details.get("title"),
+            original_title=details.get("original_title"),
             alternative_titles=alternative_titles,
-            year=main_parsed.get("year"),
-            duration=main_parsed.get("duration"),
-            original_language=main_parsed.get("original_language"),
-            spoken_languages=main_parsed.get("spoken_languages"),
-            origin_countries=main_parsed.get("origin_countries"),
-            overview=main_parsed.get("overview"),
-            genres=main_parsed.get("genres"),
-            vote_average=main_parsed.get("vote_average"),
+            year=release_year or details.get("year"),
+            duration=details.get("duration"),
+            original_language=details.get("original_language"),
+            spoken_languages=details.get("spoken_languages"),
+            origin_countries=details.get("origin_countries"),
+            overview=details.get("overview"),
+            genres=details.get("genres"),
+            vote_average=details.get("vote_average"),
             providers=providers,
-            credits=credits_parsed,
+            credits=credits,
             imdb_movie=imdb_movie,
         )
 
-    def _parse_movie_data(self, data: dict) -> dict | None:
+    def _parse_movie_details(self, data: dict) -> dict | None:
         """
         Parse movie data from TMDB API response and return a dictionary of movie attributes.
 
@@ -272,7 +262,7 @@ class TMDBClient:
             "vote_average": vote_average,
         }
 
-    def _parse_alternative_titles_data(self, data: dict) -> list[dict]:
+    def _parse_alternative_titles(self, data: dict) -> list[dict]:
         """
         Parse alternative titles data from TMDB API response and return a list of alternative titles.
 
@@ -284,6 +274,7 @@ class TMDBClient:
         alternative_titles = []
         if data:
             for t in data.get("titles", []):
+                t: dict
                 alt_title = t.get("title")
                 if not alt_title:
                     continue
@@ -298,7 +289,7 @@ class TMDBClient:
 
         return alternative_titles
 
-    def _parse_providers_data(self, data: dict) -> list[Provider]:
+    def _parse_providers(self, data: dict) -> list[Provider]:
         """
         Parse watch providers data from TMDB API response and return a list of Provider objects.
 
@@ -307,12 +298,15 @@ class TMDBClient:
         Returns:
             list[Provider]: A list of Provider objects for the movie.
         """
-        results = data.get("results", {})
+        results: dict = data.get("results", {})
         buckets: dict[str, Provider] = {}
 
         for region_code, info in results.items():
+            region_code: str
+            info: dict
             for key in ("buy", "rent", "flatrate", "free", "ads"):
                 for item in info.get(key, []) or []:
+                    item: dict
                     provider_name = item.get("provider_name")
                     if not provider_name:
                         continue
@@ -364,6 +358,30 @@ class TMDBClient:
                 }
             )
         return credits
+
+    def _parse_release_dates(self, data: dict) -> list[int]:
+        if not data:
+            return []
+        release_dates: list[int] = []
+        for entry in data.get("results", []):
+            entry: dict
+            if not entry:
+                continue
+            for release_info in entry.get("release_dates", []):
+                release_info: dict
+                if not release_info:
+                    continue
+                release_date = release_info.get("release_date")
+                if not release_date:
+                    continue
+
+                try:
+                    release_year = int(release_date[:4])
+                    release_dates.append(release_year)
+                except ValueError:
+                    continue
+
+        return release_dates
 
     def _get_justwatch_node_id(self, movie: TMDBMovie, country: str) -> str | None:
         """
