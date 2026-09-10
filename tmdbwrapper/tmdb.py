@@ -184,7 +184,7 @@ class TMDBClient:
         release_year = min(release_dates) if release_dates else None
         alternative_titles = self._parse_alternative_titles(data.get("alternative_titles") or {})
         providers: list[Provider] = self._parse_providers(data.get("watch/providers") or {})
-        credits = self._parse_credits_data(data.get("credits") or {})
+        credits = self._parse_credits(data.get("credits") or {})
 
         return TMDBMovie(
             id=movie_id,
@@ -319,7 +319,7 @@ class TMDBClient:
 
         return list(buckets.values())
 
-    def _parse_credits_data(self, data: dict) -> list[dict]:
+    def _parse_credits(self, data: dict) -> list[dict]:
         """
         Parse credits data from TMDB API response and return a dictionary of credits information.
 
@@ -680,7 +680,7 @@ class TMDBClient:
         data = await fetch(url, params)
         if not data:
             return []
-        return self._parse_providers_data(data)
+        return self._parse_providers(data)
 
 
 def _cleanup_clients() -> None:
