@@ -319,6 +319,7 @@ class ProviderName(Enum):
     SUN_NXT = "Sun Nxt"
     SUPERFRESH_AMAZON_CHANNEL = "Superfresh Amazon Channel"
     SVT = "SVT"
+    SWEET_TV = "Sweet.tv"
     TABII = "tabii"
     TBS = "TBS"
     TCM = "TCM"
@@ -740,6 +741,7 @@ class Provider:
         ProviderName.SUN_NXT.value: {"sun nxt"},
         ProviderName.SUPERFRESH_AMAZON_CHANNEL.value: {"superfresh amazon channel"},
         ProviderName.SVT.value: {"svt"},
+        ProviderName.SWEET_TV.value: {"sweet.tv", "sweet tv", "sweettv"},
         ProviderName.TABII.value: {"tabii"},
         ProviderName.TBS.value: {"tbs"},
         ProviderName.TCM.value: {"tcm"},
