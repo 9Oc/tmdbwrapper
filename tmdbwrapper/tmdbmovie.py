@@ -219,6 +219,7 @@ class ProviderName(Enum):
     MIDNIGHT_PULP = "Midnight Pulp"
     MIDNIGHT_PULP_AMAZON_CHANNEL = "Midnight Pulp Amazon Channel"
     MOLOTOV_TV = "Molotov TV"
+    MONOMAX = "Monomax"
     MORE_TV = "More TV"
     MOVISTARTV = "MovistarTV"
     MOVISTAR_PLUS = "Movistar Plus+"
@@ -431,7 +432,7 @@ class Provider:
         ProviderName.AQUARIUS_AMAZON_CHANNEL.value: {"aquarius amazon channel"},
         ProviderName.ARTE.value: {"arte"},
         ProviderName.ARTE_AMAZON_CHANNEL.value: {"arte amazon channel", "arte+ amazon channel", "arte amazon channels"},
-        ProviderName.ARTE_BOUTIQUE.value: {"arte boutique"},
+        ProviderName.ARTE_BOUTIQUE.value: {"arte boutique", "arteboutique"},
         ProviderName.ARTHAUS_PLUS.value: {"arthaus+", "arthaus plus"},
         ProviderName.ARTHOUSE_CNMA.value: {"arthouse cnma", "arthousecnma"},
         ProviderName.ARTHOUSE_CNMA_AMAZON_CHANNEL.value: {"arthouse cnma amazon channel"},
@@ -626,6 +627,7 @@ class Provider:
         ProviderName.MIDNIGHT_PULP.value: {"midnight pulp"},
         ProviderName.MIDNIGHT_PULP_AMAZON_CHANNEL.value: {"midnight pulp amazon channel"},
         ProviderName.MOLOTOV_TV.value: {"molotov tv"},
+        ProviderName.MONOMAX.value: {"monomax", "mono max"},
         ProviderName.MORE_TV.value: {"more tv"},
         ProviderName.MOVISTARTV.value: {"movistartv"},
         ProviderName.MOVISTAR_PLUS.value: {"movistar plus+", "movistar plus"},
