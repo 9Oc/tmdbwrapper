@@ -112,7 +112,7 @@ class ProviderName(Enum):
     DOCPLAY_AMAZON_CHANNEL = "DocPlay Amazon Channel"
     DOCSVILLE = "DOCSVILLE"
     DOCURAMAFILMS_AMAZON_CHANNEL = "DocuramaFilms Amazon Channel"
-    DRAKEN_FILMS = "Draken Films"
+    DRAKEN_FILM = "Draken Film"
     DRTV = "DRTV"
     ELISA_VIIHDE = "Elisa Viihde"
     ETERNAL_FAMILY = "Eternal Family"
@@ -512,7 +512,7 @@ class Provider:
         ProviderName.DOCPLAY_AMAZON_CHANNEL.value: {"docplay amazon channel"},
         ProviderName.DOCSVILLE.value: {"docsville"},
         ProviderName.DOCURAMAFILMS_AMAZON_CHANNEL.value: {"docuramafilms amazon channel"},
-        ProviderName.DRAKEN_FILMS.value: {"draken films"},
+        ProviderName.DRAKEN_FILM.value: {"draken films", "draken film", "drakenfilm", "drakenfilms"},
         ProviderName.DRTV.value: {"drtv"},
         ProviderName.ELISA_VIIHDE.value: {"elisa viihde"},
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
