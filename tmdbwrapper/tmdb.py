@@ -444,6 +444,7 @@ class TMDBClient:
         provider_map = {
             ProviderName.MERCADO_PLAY: "on Mercado Play",
             ProviderName.SOONER: "on Sooner",
+            ProviderName.THREECAT: "on 3Cat",
         }
         tmdb_page_url = f"https://www.themoviedb.org/movie/{movie_id}/watch?translate=false&locale={region.upper() if region else 'US'}"
         raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
@@ -575,9 +576,16 @@ class TMDBClient:
         """
         if not movie or not provider_name:
             return None
-        # mercado play is not exposed in the public graphql api, so scrape the TMDB page for the deep link instead
-        if provider_name == ProviderName.MERCADO_PLAY or (provider_name == ProviderName.SOONER and region and region.upper() == "DE"):
-            return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
+        # some providers are not exposed in the public GraphQL API and require scraping the TMDB page for the deep link
+        match provider_name:
+            case ProviderName.MERCADO_PLAY:
+                return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
+            case ProviderName.SOONER if region and region.upper() == "DE":
+                return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
+            case ProviderName.THREECAT:
+                return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
+            case _:
+                pass
 
         min_year = None
         max_year = None
