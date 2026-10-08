@@ -333,6 +333,7 @@ class ProviderName(Enum):
     TF1_PLUS = "TF1+"
     THE_CW = "The CW"
     THE_ROKU_CHANNEL = "The Roku Channel"
+    THREECAT = "3Cat"
     THREENOW = "ThreeNow"
     TIMVISION = "Timvision"
     TIVIFY = "Tivify"
@@ -770,6 +771,7 @@ class Provider:
         ProviderName.TF1_PLUS.value: {"tf1+", "tf1 plus"},
         ProviderName.THE_CW.value: {"the cw"},
         ProviderName.THE_ROKU_CHANNEL.value: {"the roku channel"},
+        ProviderName.THREECAT.value: {"3cat", "threecat", "three cat", "3 cat"},
         ProviderName.THREENOW.value: {"threenow", "3now", "three now"},
         ProviderName.TIMVISION.value: {"timvision"},
         ProviderName.TIVIFY.value: {"tivify"},
