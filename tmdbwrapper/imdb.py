@@ -1,4 +1,4 @@
-import aiohttp
+from httpx import AsyncClient
 
 GRAPHQL_ENDPOINT: str = r"https://api.graphql.imdb.com/"
 
@@ -32,7 +32,7 @@ class IMDBMovie:
         countries_of_origin: list,
         certificate: str,
         imdb_rating: float,
-    ):
+    ) -> None:
         self.id: str = id
         self.title: str = title
         self.original_title: str = original_title
@@ -46,7 +46,7 @@ class IMDBMovie:
         self.errors: dict | None = None
 
 
-async def get_imdb_movie(imdb_id: str, session: aiohttp.ClientSession) -> IMDBMovie | None:
+async def get_imdb_movie(imdb_id: str, client: AsyncClient) -> IMDBMovie | None:
     if not imdb_id:
         return None
     payload: dict = {
@@ -58,44 +58,45 @@ async def get_imdb_movie(imdb_id: str, session: aiohttp.ClientSession) -> IMDBMo
         "x-imdb-client-name": "imdb-web-next-localized",
         "x-imdb-user-country": "US",
     }
-    async with session.post(GRAPHQL_ENDPOINT, json=payload, headers=headers) as resp:
-        data: dict = await resp.json()
-        imdb_movie: IMDBMovie = IMDBMovie(
-            id=imdb_id,
-            title="",
-            original_title="",
-            release_year=None,
-            release_date={},
-            runtime_seconds=None,
-            spoken_languages=[],
-            countries_of_origin=[],
-            certificate=None,
-            imdb_rating=0.0,
-        )
-        if data.get("errors"):
-            imdb_movie.errors = data.get("errors", [{}])[0]
-            return imdb_movie
-
-        movie_data: dict = data.get("data", {}).get("title")
-        if not movie_data:
-            return imdb_movie
-
-        imdb_movie.id = imdb_id
-        imdb_movie.title = movie_data.get("titleText").get("text") if movie_data.get("titleText") else None
-        imdb_movie.original_title = movie_data.get("originalTitleText").get("text") if movie_data.get("originalTitleText") else None
-        imdb_movie.release_year = movie_data.get("releaseYear").get("year") if movie_data.get("releaseYear") else None
-        imdb_movie.release_date = movie_data.get("releaseDate")
-        imdb_movie.runtime_seconds = movie_data.get("runtime").get("seconds") if movie_data.get("runtime") else None
-        imdb_movie.spoken_languages = (
-            [lang.get("id") for lang in movie_data.get("spokenLanguages", {}).get("spokenLanguages", [])]
-            if movie_data.get("spokenLanguages")
-            else []
-        )
-        imdb_movie.countries_of_origin = (
-            [country.get("id") for country in movie_data.get("countriesOfOrigin", {}).get("countries", [])]
-            if movie_data.get("countriesOfOrigin")
-            else []
-        )
-        imdb_movie.certificate = movie_data.get("certificate").get("rating") if movie_data.get("certificate") else None
-        imdb_movie.imdb_rating = movie_data.get("ratingsSummary").get("aggregateRating") if movie_data.get("ratingsSummary") else None
+    resp = await client.post(GRAPHQL_ENDPOINT, headers=headers, json=payload)
+    resp.raise_for_status()
+    data: dict = resp.json()
+    imdb_movie: IMDBMovie = IMDBMovie(
+        id=imdb_id,
+        title="",
+        original_title="",
+        release_year=None,
+        release_date={},
+        runtime_seconds=None,
+        spoken_languages=[],
+        countries_of_origin=[],
+        certificate=None,
+        imdb_rating=0.0,
+    )
+    if data.get("errors"):
+        imdb_movie.errors = data.get("errors", [{}])[0]
         return imdb_movie
+
+    movie_data: dict = data.get("data", {}).get("title")
+    if not movie_data:
+        return imdb_movie
+
+    imdb_movie.id = imdb_id
+    imdb_movie.title = movie_data.get("titleText").get("text") if movie_data.get("titleText") else None
+    imdb_movie.original_title = movie_data.get("originalTitleText").get("text") if movie_data.get("originalTitleText") else None
+    imdb_movie.release_year = movie_data.get("releaseYear").get("year") if movie_data.get("releaseYear") else None
+    imdb_movie.release_date = movie_data.get("releaseDate")
+    imdb_movie.runtime_seconds = movie_data.get("runtime").get("seconds") if movie_data.get("runtime") else None
+    imdb_movie.spoken_languages = (
+        [lang.get("id") for lang in movie_data.get("spokenLanguages", {}).get("spokenLanguages", [])]
+        if movie_data.get("spokenLanguages")
+        else []
+    )
+    imdb_movie.countries_of_origin = (
+        [country.get("id") for country in movie_data.get("countriesOfOrigin", {}).get("countries", [])]
+        if movie_data.get("countriesOfOrigin")
+        else []
+    )
+    imdb_movie.certificate = movie_data.get("certificate").get("rating") if movie_data.get("certificate") else None
+    imdb_movie.imdb_rating = movie_data.get("ratingsSummary").get("aggregateRating") if movie_data.get("ratingsSummary") else None
+    return imdb_movie
