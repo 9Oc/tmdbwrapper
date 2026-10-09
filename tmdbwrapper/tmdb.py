@@ -96,7 +96,7 @@ class TMDBClient:
                 return json.loads(match.group(1))
             return None
 
-    async def search(self, query: str, year: int | None = None, region: str | None = None) -> list[TMDBMovie] | None:
+    async def search(self, query: str, year: int | None = None, region: str | None = None) -> list[TMDBMovie]:
         """
         Search the TMDB search endpoint with a query.
         Optionally provide a year and/or region to narrow results.
@@ -107,7 +107,7 @@ class TMDBClient:
             year (int | None): The year to filter results by. Defaults to None.
             region (str | None): The region to filter results by. Defaults to None.
         Returns:
-            list[TMDBMovie] | None: A list of TMDBMovie objects if results are found, otherwise an empty list or None.
+            list[TMDBMovie]: A list of TMDBMovie objects if results are found, otherwise an empty list.
         """
         url = "https://api.themoviedb.org/3/search/movie"
         params = {
@@ -176,10 +176,10 @@ class TMDBClient:
 
         details: dict = self._parse_movie_details(data)
         release_dates: list[int] = self._parse_release_dates(data.get("release_dates") or {})
-        release_year = min(release_dates) if release_dates else None
-        alternative_titles = self._parse_alternative_titles(data.get("alternative_titles") or {})
+        release_year: int | None = min(release_dates) if release_dates else None
+        alternative_titles: list[dict] = self._parse_alternative_titles(data.get("alternative_titles") or {})
         providers: list[Provider] = self._parse_providers(data.get("watch/providers") or {})
-        credits = self._parse_credits(data.get("credits") or {})
+        credits: list[dict] = self._parse_credits(data.get("credits") or {})
 
         return TMDBMovie(
             id=movie_id,
