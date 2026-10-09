@@ -1,5 +1,4 @@
 import asyncio
-import atexit
 import json
 import re
 from collections.abc import Collection
@@ -8,41 +7,59 @@ from re import Match
 from typing import Self
 from urllib.parse import parse_qs, unquote, urlparse
 
-import aiohttp
+import asyncio_atexit
 import requests
-from aiohttp_socks import ProxyConnector
 from bs4 import BeautifulSoup
+from httpx import AsyncClient, HTTPStatusError
 from rich import print
-from simplejustwatchapi import details
-from simplejustwatchapi.justwatch import search
-from simplejustwatchapi.query import Offer
+from simplejustwatchapi.justwatch import details, search
+from simplejustwatchapi.tuples import MediaEntry, Offer
 
 from tmdbwrapper.imdb import get_imdb_movie
 from tmdbwrapper.tmdbmovie import Provider, ProviderName, TMDBMovie
 
 _active_clients = []
+_registered_loops: set[asyncio.AbstractEventLoop] = set()
 
 
 class TMDBClient:
-    def __init__(self, api_key: str, proxy: str | None = None):
+    def __init__(self, api_key: str, proxy: str | None = None) -> None:
         self.api_key = api_key
         self.proxy = proxy
-        self._session: aiohttp.ClientSession | None = None
-        _active_clients.append(self)
+        self._client: AsyncClient | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
 
-    async def _get_session(self) -> aiohttp.ClientSession:
-        """Get or create client's aiohttp session."""
-        if self._session is None or self._session.closed:
-            aiohttp_kwargs = {"timeout": aiohttp.ClientTimeout(total=30)}
-            if self.proxy:
-                aiohttp_kwargs["connector"] = ProxyConnector.from_url(self.proxy.replace(r"socks5h://", r"socks5://"))
-            self._session = aiohttp.ClientSession(**aiohttp_kwargs)
-        return self._session
+    @property
+    def client(self) -> AsyncClient:
+        if self._client is None or self._client.is_closed:
+            loop = asyncio.get_running_loop()
 
-    async def close(self):
-        """Close the client's aiohttp session."""
-        if self._session and not self._session.closed:
-            await self._session.close()
+            self._client = AsyncClient(
+                http2=True,
+                proxy=self.proxy,
+                timeout=30,
+            )
+            self._loop = loop
+
+            if loop not in _registered_loops:
+                asyncio_atexit.register(_cleanup_clients)
+                _registered_loops.add(loop)
+
+        return self._client
+
+    # @property
+    # def client(self) -> AsyncClient | None:
+    #     if self._client is None:
+    #         self._client = AsyncClient(http2=True, proxy=self.proxy, timeout=30)
+    #         _active_clients.append(self)
+    #     return self._client
+
+    async def close(self) -> None:
+        """Close async resources held by the TMDB Client."""
+        try:
+            if self._client and not self._client.is_closed:
+                await self._client.aclose()
+        finally:
             if self in _active_clients:
                 _active_clients.remove(self)
 
@@ -55,27 +72,29 @@ class TMDBClient:
         await self.close()
 
     async def _fetch(self, url: str, params: dict, timeout: int = 15) -> dict | None:
-        session = await self._get_session()
-        async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-            try:
-                response.raise_for_status()
-                return await response.json()
-            except aiohttp.ClientResponseError as e:
-                if e.status == 404:
-                    return None
-                raise
-            except (aiohttp.ContentTypeError, JSONDecodeError):
-                text = await response.text()
-                if not text:
-                    return None
-                if text.lstrip().startswith("{"):
-                    return json.loads(text)
-
-                # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
-                match = re.search(r"\((\{.*\})\)\s*$", text, re.DOTALL)
-                if match:
-                    return json.loads(match.group(1))
+        response = await self.client.get(url, params=params, timeout=timeout)
+        try:
+            response.raise_for_status()
+            return response.json()
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
                 return None
+            raise
+        except JSONDecodeError:
+            text = response.text
+            if not text:
+                return None
+            if text.lstrip().startswith("{"):
+                try:
+                    return json.loads(text)
+                except JSONDecodeError:
+                    return None
+
+            # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
+            match = re.search(r"\((\{.*\})\)\s*$", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+            return None
 
     async def search(self, query: str, year: int | None = None, region: str | None = None) -> list[TMDBMovie] | None:
         """
@@ -149,35 +168,11 @@ class TMDBClient:
         if get_credits:
             params["append_to_response"] += ",credits"
 
-        session = await self._get_session()
-
-        async def _fetch(url: str, params: dict, timeout: int = 15) -> dict | None:
-            async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-                try:
-                    response.raise_for_status()
-                    return await response.json()
-                except aiohttp.ClientResponseError as e:
-                    if e.status == 404:
-                        return None
-                    raise
-                except (aiohttp.ContentTypeError, JSONDecodeError):
-                    text = await response.text()
-                    if not text:
-                        return None
-                    if text.lstrip().startswith("{"):
-                        return json.loads(text)
-
-                    # JSONP / Angular wrapper when tmdb api randomly returns javascript ????
-                    match = re.search(r"\((\{.*\})\)\s*$", text, re.DOTALL)
-                    if match:
-                        return json.loads(match.group(1))
-                    return None
-
-        data: dict = await _fetch(movie_url, params)
+        data: dict = await self._fetch(movie_url, params)
         if data is None:
             return None
 
-        imdb_movie = await get_imdb_movie(data.get("imdb_id"), session) if get_imdb_data and data.get("imdb_id") else None
+        imdb_movie = await get_imdb_movie(data.get("imdb_id"), self.client) if get_imdb_data and data.get("imdb_id") else None
 
         details: dict = self._parse_movie_details(data)
         release_dates: list[int] = self._parse_release_dates(data.get("release_dates") or {})
@@ -415,8 +410,16 @@ class TMDBClient:
 
         return None
 
-    def _fetch_provider_url(self, offers: Collection[Offer], provider_name: ProviderName) -> str | None:
-        """Fetch provider URL for a given ProviderName and list of Offers."""
+    def _parse_provider_url(self, offers: Collection[Offer], provider_name: ProviderName) -> str | None:
+        """
+        Parse the provider URL for a given `ProviderName` and list of `Offer` objects.
+
+        Args:
+            offers (Collection[Offer]): A collection of `Offer` objects to search through.
+            provider_name (ProviderName): The `ProviderName` to match against the offers.
+        Returns:
+            str | None: The URL of the matching provider offer, or None if no match is found.
+        """
 
         if not offers or not provider_name:
             return None
@@ -500,7 +503,7 @@ class TMDBClient:
                 url_ref = apollo_state["ROOT_QUERY"][query_key]["id"]
                 movie_ref = apollo_state[url_ref]["node"]["id"]
                 return apollo_state[movie_ref]["id"]
-            except Exception:
+            except Exception:  # noqa: S110
                 pass  # ignore parsing errors
             # fallback to regex
             pattern = re.compile(
@@ -521,7 +524,7 @@ class TMDBClient:
 
         Args:
             justwatch_url (str): The JustWatch URL to get the provider URL for.
-            provider_name (ProviderName): The provider to get the URL for.
+            provider_name (ProviderName): The `ProviderName` of the provider to get the URL for.
             region (str, optional): The region to get the URL from. Defaults to None.
         Returns:
             str | None: The provider deep link for the given JustWatch URL if found, otherwise None.
@@ -538,19 +541,18 @@ class TMDBClient:
                 url_region = "gb"
             region = url_region
 
-        session = await self._get_session()
         headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Accept-Language": "en-US,en;q=0.9",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0",
         }
-        async with await session.get(justwatch_url, headers=headers) as resp:
-            resp.raise_for_status()
-            jw_html = await resp.text()
-            node_id = self._parse_justwatch_node_id(justwatch_url, jw_html)
+        resp = await self.client.get(justwatch_url, headers=headers)
+        resp.raise_for_status()
+        jw_html = resp.text
+        node_id = self._parse_justwatch_node_id(justwatch_url, jw_html)
 
-        justwatch_node = details(node_id=node_id, country=region.upper())
-        return self._fetch_provider_url(justwatch_node.offers, provider_name) if justwatch_node else None
+        media_entry: MediaEntry = details(node_id=node_id, country=region.upper())
+        return self._parse_provider_url(media_entry.offers, provider_name) if media_entry else None
 
     def get_provider_url(
         self,
@@ -620,29 +622,29 @@ class TMDBClient:
                 # check TMDB ID and IMDB ID + (title or year) and (runtime or overview)
                 # due to justwatch frequently having mismatched or out-of-date data,
                 # adding the 2 additional checks prevents many false positives when the TMDB or IMDB ID's match but lead to the wrong movie deep link
-                imdb_match = str(entry.imdb_id) == str(movie.imdb_id) if (entry.imdb_id and movie.imdb_id) else False
-                tmdb_match = str(entry.tmdb_id) == str(movie.id) if (entry.tmdb_id and movie.id) else False
-                title_match = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
+                imdb_match: bool = str(entry.imdb_id) == str(movie.imdb_id) if (entry.imdb_id and movie.imdb_id) else False
+                tmdb_match: bool = str(entry.tmdb_id) == str(movie.id) if (entry.tmdb_id and movie.id) else False
+                title_match: bool = (entry.title and movie.title and entry.title.lower() == movie.title.lower()) or (
                     entry.title and movie.original_title and entry.title.lower() == movie.original_title.lower()
                 )
-                release_year_match = int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
-                runtime_match = (
+                release_year_match: bool = int(entry.release_year) == int(movie.year) if entry.release_year and movie.year else False
+                runtime_match: bool = (
                     int(entry.runtime_minutes * 60) == int(movie.duration) if entry.runtime_minutes and movie.duration else False
                 )
-                overview_match = (
+                overview_match: bool = (
                     str(entry.short_description).lower() == str(movie.overview).lower()
                     if entry.short_description and movie.overview
                     else False
                 )
-                tmdb_score_match = (
+                tmdb_score_match: bool = (
                     round(float(entry.scoring.tmdb_score), 1) == round(float(movie.vote_average), 1)
                     if entry.scoring and entry.scoring.tmdb_score and movie.vote_average
                     else False
                 )
 
-                number_of_matches = sum([title_match, release_year_match, runtime_match, overview_match, tmdb_score_match])
+                number_of_matches: int = sum([title_match, release_year_match, runtime_match, overview_match, tmdb_score_match])
                 if ((tmdb_match or imdb_match) and number_of_matches >= 2) or (tmdb_match and imdb_match and number_of_matches >= 1):
-                    url = self._fetch_provider_url(offers, provider_name)
+                    url = self._parse_provider_url(offers, provider_name)
                     if url:
                         return url
 
@@ -650,7 +652,7 @@ class TMDBClient:
                 # this can help catch matches which have bad TMDB/IMDB ID's from JustWatch but are otherwise correct
                 # however, it can lead to false positives in some cases
                 if fuzzy_match and title_match and release_year_match and runtime_match and tmdb_score_match or overview_match:
-                    url = self._fetch_provider_url(offers, provider_name)
+                    url = self._parse_provider_url(offers, provider_name)
                     if url:
                         return url
 
@@ -665,45 +667,40 @@ class TMDBClient:
         Returns:
             list[Provider]: List of Provider objects if the movie is available on any providers, otherwise an empty list.
         Raises:
-            aiohttp.ClientResponseError: If the TMDB API request fails with a status other than 404.
-                                         A 404 status is treated as "movie not found" and results in an empty list being returned.
+            httpx.HTTPStatusError: If the TMDB API request fails with a status other than 404.
+                                   A 404 status is treated as "movie not found" and results in an empty list being returned.
         """
         url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/watch/providers"
         params = {"api_key": self.api_key}
 
-        session = await self._get_session()
-
-        async def fetch(url: str, params: dict, timeout: int = 15) -> dict | None:
-            """Fetch json response from given URL with retry."""
-            try:
-                async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=timeout)) as response:
-                    response.raise_for_status()
-                    return await response.json()
-            except aiohttp.ClientResponseError as e:
-                if e.status == 404:
-                    # if the movie is not found, return an empty list
-                    return []
-                raise
-
-        data = await fetch(url, params)
+        data = await self._fetch(url, params)
         if not data:
             return []
         return self._parse_providers(data)
 
 
-def _cleanup_clients() -> None:
-    """Cleanup function called at program exit."""
-    if _active_clients:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            for client in _active_clients[:]:  # copy list to avoid modification during iteration
-                if client._session and not client._session.closed:
-                    loop.run_until_complete(client.close())
-        finally:
-            loop.close()
+async def _cleanup_clients() -> None:
+    """Automatically close clients before their event loop shuts down."""
+    loop = asyncio.get_running_loop()
+    clients = [client for client in _active_clients.copy() if client._loop is loop]
+
+    try:
+        if not clients:
+            return
+
+        results = await asyncio.gather(
+            *(client.close() for client in clients),
+            return_exceptions=True,
+        )
+
+        success = True
+
+        for result in results:
+            if isinstance(result, BaseException):
+                success = False
+                print(f"[red][TMDB] Failed to close client: {result}[/red]")
+
+        if success:
             print("[green][TMDB][/green] Closed all active TMDBClient sessions.")
-
-
-# register cleanup function to run at program exit
-atexit.register(_cleanup_clients)
+    finally:
+        _registered_loops.discard(loop)
