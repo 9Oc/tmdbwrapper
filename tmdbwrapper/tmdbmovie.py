@@ -432,7 +432,7 @@ class Provider:
         ProviderName.AQUARIUS_AMAZON_CHANNEL.value: {"aquarius amazon channel"},
         ProviderName.ARTE.value: {"arte"},
         ProviderName.ARTE_AMAZON_CHANNEL.value: {"arte amazon channel", "arte+ amazon channel", "arte amazon channels"},
-        ProviderName.ARTE_BOUTIQUE.value: {"arte boutique", "arteboutique"},
+        ProviderName.ARTE_BOUTIQUE.value: {"arte boutique", "arteboutique", "arte vod", "artevod"},
         ProviderName.ARTHAUS_PLUS.value: {"arthaus+", "arthaus plus"},
         ProviderName.ARTHOUSE_CNMA.value: {"arthouse cnma", "arthousecnma"},
         ProviderName.ARTHOUSE_CNMA_AMAZON_CHANNEL.value: {"arthouse cnma amazon channel"},
