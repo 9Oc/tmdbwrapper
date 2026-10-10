@@ -41,18 +41,13 @@ class TMDBClient:
             )
             self._loop = loop
 
+            if self not in _active_clients:
+                _active_clients.append(self)
             if loop not in _registered_loops:
                 asyncio_atexit.register(_cleanup_clients)
                 _registered_loops.add(loop)
 
         return self._client
-
-    # @property
-    # def client(self) -> AsyncClient | None:
-    #     if self._client is None:
-    #         self._client = AsyncClient(http2=True, proxy=self.proxy, timeout=30)
-    #         _active_clients.append(self)
-    #     return self._client
 
     async def close(self) -> None:
         """Close async resources held by the TMDB Client."""
@@ -449,6 +444,9 @@ class TMDBClient:
             ProviderName.SOONER: "on Sooner",
             ProviderName.THREECAT: "on 3Cat",
         }
+        if provider_name == ProviderName.THREECAT:
+            region = "ES"
+
         tmdb_page_url = f"https://www.themoviedb.org/movie/{movie_id}/watch?translate=false&locale={region.upper() if region else 'US'}"
         raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
         soup = BeautifulSoup(raw_html, "lxml")
