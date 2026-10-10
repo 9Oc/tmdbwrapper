@@ -686,7 +686,10 @@ class Provider:
             "paramount plus apple tv channel",
             "paramount+ apple tv channel",
         },
-        ProviderName.PARAMOUNT_PLUS_ROKU_PREMIUM_CHANNEL.value: {"paramount+ roku premium channel"},
+        ProviderName.PARAMOUNT_PLUS_ROKU_PREMIUM_CHANNEL.value: {
+            "paramount+ roku premium channel",
+            "paramount plus roku premium channel",
+        },
         ProviderName.PATHE_HOME.value: {"pathé home", "pathe home"},
         ProviderName.PATHE_THUIS.value: {"pathé thuis", "pathe thuis"},
         ProviderName.PBS.value: {"pbs"},
