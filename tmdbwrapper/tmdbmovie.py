@@ -279,6 +279,7 @@ class ProviderName(Enum):
     RTL_PLUS = "RTL+"
     RTL_PLUS_MAX_AMAZON_CHANNEL = "RTL+ Max Amazon Channel"
     RTP_PLAY = "RTP Play"
+    RTVE_PLAY = "RTVE Play"
     RUNTIME = "Runtime"
     RUUTU = "Ruutu"
     RUV = "RUV"
@@ -720,6 +721,7 @@ class Provider:
         ProviderName.RTL_PLUS.value: {"rtl+", "rtl plus"},
         ProviderName.RTL_PLUS_MAX_AMAZON_CHANNEL.value: {"rtl+ max amazon channel", "rtl plus max amazon channel"},
         ProviderName.RTP_PLAY.value: {"rtp play", "rtpplay"},
+        ProviderName.RTVE_PLAY.value: {"rtve", "rtve play"},
         ProviderName.RUNTIME.value: {"runtime"},
         ProviderName.RUUTU.value: {"ruutu"},
         ProviderName.RUV.value: {"ruv"},
