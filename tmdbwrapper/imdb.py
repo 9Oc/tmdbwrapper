@@ -102,6 +102,9 @@ async def get_imdb_movie(imdb_id: str, client: AsyncClient) -> IMDBMovie | None:
     akas: dict[str, dict[str, str]] = {}
     for edge in edges:
         node: dict = edge.get("node") or {}
+        attributes: list[dict] = node.get("attributes") or []
+        if any(attr.get("text") == "Alternative Title" for attr in attributes):
+            continue
         country_id: str | None = (node.get("country") or {}).get("id")
         text: str | None = node.get("text")
         if not country_id or not text:
