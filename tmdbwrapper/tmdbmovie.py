@@ -969,6 +969,17 @@ class TMDBMovie:
             if cast_member["role"] in ("Director", "Co-Director") and cast_member.get("name")
         ]
 
+    def get_actors(self) -> list[str]:
+        """
+        Get a list of actor names from the credits.
+
+        Returns:
+            list[str]: A list of actor names, or an empty list if no actors are found/credits are empty.
+        """
+        if not self.credits:
+            return []
+        return [cast_member["name"].strip() for cast_member in self.credits if cast_member["role"] == "Acting" and cast_member.get("name")]
+
     @staticmethod
     def sanitize(text: str, folder: bool = False) -> str:
         """
