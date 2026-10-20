@@ -443,9 +443,12 @@ class TMDBClient:
             ProviderName.MERCADO_PLAY: "on Mercado Play",
             ProviderName.SOONER: "on Sooner",
             ProviderName.THREECAT: "on 3Cat",
+            ProviderName.CLUB_ILLICO: "on Club Illico",
         }
         if provider_name == ProviderName.THREECAT:
             region = "ES"
+        if provider_name == ProviderName.CLUB_ILLICO:
+            region = "CA"
 
         tmdb_page_url = f"https://www.themoviedb.org/movie/{movie_id}/watch?translate=false&locale={region.upper() if region else 'US'}"
         raw_html = requests.get(tmdb_page_url, proxies={"http": self.proxy, "https": self.proxy}, timeout=15).text
@@ -583,6 +586,8 @@ class TMDBClient:
             case ProviderName.SOONER if region and region.upper() == "DE":
                 return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
             case ProviderName.THREECAT:
+                return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
+            case ProviderName.CLUB_ILLICO:
                 return self._fetch_provider_url_watch_page(movie.id, provider_name, region)
             case _:
                 pass
