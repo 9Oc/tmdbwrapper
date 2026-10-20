@@ -479,7 +479,7 @@ class Provider:
         ProviderName.CINU.value: {"cinu"},
         ProviderName.CLARO_TV_PLUS.value: {"claro tv+"},
         ProviderName.CLARO_VIDEO.value: {"claro video"},
-        ProviderName.CLUB_ILLICO.value: {"club illico"},
+        ProviderName.CLUB_ILLICO.value: {"club illico", "illico+", "illico plus"},
         ProviderName.COSMOGO.value: {"cosmogo"},
         ProviderName.CRAVE.value: {"crave"},
         ProviderName.CRAVE_AMAZON_CHANNEL.value: {"crave amazon channel"},
