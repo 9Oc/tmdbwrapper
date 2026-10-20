@@ -3,17 +3,28 @@ from httpx import AsyncClient
 GRAPHQL_ENDPOINT: str = r"https://api.graphql.imdb.com/"
 
 GRAPHQL_SEARCH_QUERY: str = """
-query ($id: ID!) {
+query ($id: ID!, $after: ID) {
     title(id: $id) {
-    titleText { text }
-    originalTitleText { text }
-    releaseYear { year }
-    releaseDate { day, month, year }
-    runtime { seconds }
-    spokenLanguages { spokenLanguages { id, text } }
-    countriesOfOrigin { countries { id } }
-    certificate { rating }
-    ratingsSummary { aggregateRating }
+        titleText { text }
+        originalTitleText { text }
+        releaseYear { year }
+        releaseDate { day, month, year }
+        runtime { seconds }
+        spokenLanguages { spokenLanguages { id, text } }
+        countriesOfOrigin { countries { id } }
+        certificate { rating }
+        ratingsSummary { aggregateRating }
+        akas(first: 250, after: $after, sort: {order: ASC by: COUNTRY}) {
+            edges {
+                node {
+                    text
+                    country { id text }
+                    language { id text }
+                    attributes { text }
+                }
+            }
+            pageInfo { hasNextPage endCursor }
+        }
     }
 }
 """
@@ -25,6 +36,7 @@ class IMDBMovie:
         id: str,
         title: str,
         original_title: str,
+        akas: dict[str, dict[str, str]],
         release_year: int,
         release_date: dict,
         runtime_seconds: int,
@@ -36,6 +48,7 @@ class IMDBMovie:
         self.id: str = id
         self.title: str = title
         self.original_title: str = original_title
+        self.akas: dict[str, dict[str, str]] = akas
         self.release_year: int = release_year
         self.release_date: dict = release_date
         self.runtime_seconds: int = runtime_seconds
@@ -51,7 +64,7 @@ async def get_imdb_movie(imdb_id: str, client: AsyncClient) -> IMDBMovie | None:
         return None
     payload: dict = {
         "query": GRAPHQL_SEARCH_QUERY,
-        "variables": {"id": imdb_id},
+        "variables": {"id": imdb_id, "after": None},
     }
     headers: dict = {
         "Content-Type": "application/json",
@@ -65,6 +78,7 @@ async def get_imdb_movie(imdb_id: str, client: AsyncClient) -> IMDBMovie | None:
         id=imdb_id,
         title="",
         original_title="",
+        akas={},
         release_year=None,
         release_date={},
         runtime_seconds=None,
@@ -84,6 +98,18 @@ async def get_imdb_movie(imdb_id: str, client: AsyncClient) -> IMDBMovie | None:
     imdb_movie.id = imdb_id
     imdb_movie.title = movie_data.get("titleText").get("text") if movie_data.get("titleText") else None
     imdb_movie.original_title = movie_data.get("originalTitleText").get("text") if movie_data.get("originalTitleText") else None
+    edges: list[dict] = movie_data.get("akas", {}).get("edges") if movie_data.get("akas") else []
+    akas: dict[str, dict[str, str]] = {}
+    for edge in edges:
+        node: dict = edge.get("node") or {}
+        country_id: str | None = (node.get("country") or {}).get("id")
+        text: str | None = node.get("text")
+        if not country_id or not text:
+            continue
+
+        language: str = (node.get("language") or {}).get("id") or "und"
+        akas.setdefault(country_id, {}).setdefault(language, text)
+    imdb_movie.akas = akas
     imdb_movie.release_year = movie_data.get("releaseYear").get("year") if movie_data.get("releaseYear") else None
     imdb_movie.release_date = movie_data.get("releaseDate")
     imdb_movie.runtime_seconds = movie_data.get("runtime").get("seconds") if movie_data.get("runtime") else None
