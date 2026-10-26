@@ -46,6 +46,8 @@ class ProviderName(Enum):
     ARTHOUSE_CNMA_AMAZON_CHANNEL = "Arthouse CNMA Amazon Channel"
     ASIANCRUSH = "AsianCrush"
     ATRES_PLAYER = "Atres Player"
+    AXN_BLACK_AMAZON_CHANNEL = "AXN Black Amazon Channel"
+    AXN_WHITE_AMAZON_CHANNEL = "AXN White Amazon Channel"
     A_AND_E = "A&E"
     BBC_AMERICA = "BBC America"
     BBC_IPLAYER = "BBC iPlayer"
@@ -126,6 +128,7 @@ class ProviderName(Enum):
     FILMELIER_PLUS_AMAZON_CHANNEL = "Filmelier Plus Amazon Channel"
     FILMIN = "Filmin"
     FILMINGO = "Filmingo"
+    FILMLEGENDEN_AMAZON_CHANNEL = "Filmlegenden Amazon Channel"
     FILMO = "FILMO"
     FILMOTEKET = "Filmoteket"
     FILMSTRIBEN = "Filmstriben"
@@ -178,6 +181,7 @@ class ProviderName(Enum):
     IQIYI = "iQIYI"
     ITUNES = "iTunes"
     ITVX_PREMIUM = "ITVX Premium"
+    ITV_AMAZON_CHANNEL = "ITV Amazon Channel"
     IWONDER_FULL_AMAZON_CHANNEL = "iWonder Full Amazon Channel"
     JIOHOTSTAR = "JioHotstar"
     JOYN = "Joyn"
@@ -504,6 +508,8 @@ class Provider:
         },
         ProviderName.ASIANCRUSH.value: {"asiancrush"},
         ProviderName.ATRES_PLAYER.value: {"atres player"},
+        ProviderName.AXN_BLACK_AMAZON_CHANNEL.value: {"axn black amazon channel", "axn black amazon channels"},
+        ProviderName.AXN_WHITE_AMAZON_CHANNEL.value: {"axn white amazon channel", "axn white amazon channels"},
         ProviderName.A_AND_E.value: {"a&e"},
         ProviderName.BBC_AMERICA.value: {"bbc america"},
         ProviderName.BBC_IPLAYER.value: {"bbc iplayer"},
@@ -669,6 +675,10 @@ class Provider:
         },
         ProviderName.FILMIN.value: {"filmin", "filmin plus", "filmin premier"},
         ProviderName.FILMINGO.value: {"filmingo"},
+        ProviderName.FILMLEGENDEN_AMAZON_CHANNEL.value: {
+            "filmlegenden amazon channel",
+            "filmlegenden amazon channels",
+        },
         ProviderName.FILMO.value: {"filmo"},
         ProviderName.FILMOTEKET.value: {"filmoteket"},
         ProviderName.FILMSTRIBEN.value: {"filmstriben"},
@@ -774,6 +784,12 @@ class Provider:
         },
         ProviderName.IQIYI.value: {"iqiyi"},
         ProviderName.ITVX_PREMIUM.value: {"itvx premium"},
+        ProviderName.ITV_AMAZON_CHANNEL.value: {
+            "itv amazon channel",
+            "itv amazon channels",
+            "itvx amazon channel",
+            "itvx amazon channels",
+        },
         ProviderName.IWONDER_FULL_AMAZON_CHANNEL.value: {
             "iwonder full amazon channel",
             "iwonder full amazon channels",
