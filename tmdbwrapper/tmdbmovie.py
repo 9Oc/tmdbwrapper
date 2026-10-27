@@ -117,6 +117,7 @@ class ProviderName(Enum):
     DRAKEN_FILM = "Draken Film"
     DRTV = "DRTV"
     ELISA_VIIHDE = "Elisa Viihde"
+    EROS_NOW_AMAZON_CHANNEL = "Eros Now Amazon Channel"
     ETERNAL_FAMILY = "Eternal Family"
     FANDANGO_AT_HOME = "Fandango At Home"
     FANDOR = "Fandor"
@@ -261,6 +262,7 @@ class ProviderName(Enum):
     PATHE_THUIS = "Pathé Thuis"
     PBS = "PBS"
     PEACOCK = "Peacock"
+    PEACOCK_AMAZON_CHANNEL = "Peacock Amazon Channel"
     PHILO = "Philo"
     PILOT_WP = "Pilot WP"
     PLAY_SUISSE = "Play Suisse"
@@ -370,6 +372,7 @@ class ProviderName(Enum):
     VERLEIHSHOP = "Verleihshop"
     VI_MOVIES_AND_TV = "VI movies and tv"
     VIAPLAY = "Viaplay"
+    VIAPLAY_AMAZON_CHANNEL = "Viaplay Amazon Channel"
     VIDDLA = "Viddla"
     VIDEOBUSTER = "Videobuster"
     VIDEOLAND = "Videoland"
@@ -653,6 +656,12 @@ class Provider:
         ProviderName.DRAKEN_FILM.value: {"draken films", "draken film", "drakenfilm", "drakenfilms"},
         ProviderName.DRTV.value: {"drtv"},
         ProviderName.ELISA_VIIHDE.value: {"elisa viihde"},
+        ProviderName.EROS_NOW_AMAZON_CHANNEL.value: {
+            "eros now amazon channel",
+            "eros now amazon channels",
+            "erosnow amazon channel",
+            "erosnow amazon channels",
+        },
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
         ProviderName.FANDANGO_AT_HOME.value: {"fandango at home", "fandango at home free"},
         ProviderName.FANDOR.value: {"fandor"},
@@ -952,6 +961,12 @@ class Provider:
         ProviderName.PATHE_THUIS.value: {"pathé thuis", "pathe thuis"},
         ProviderName.PBS.value: {"pbs"},
         ProviderName.PEACOCK.value: {"peacock", "peacock premium", "peacock premium plus"},
+        ProviderName.PEACOCK_AMAZON_CHANNEL.value: {
+            "peacock amazon channel",
+            "peacock amazon channels",
+            "peacock premium plus amazon channel",
+            "peacock premium plus amazon channels",
+        },
         ProviderName.PHILO.value: {"philo"},
         ProviderName.PILOT_WP.value: {"pilot wp"},
         ProviderName.PLAY_SUISSE.value: {"play suisse", "playsuisse"},
@@ -1124,6 +1139,12 @@ class Provider:
         ProviderName.VERLEIHSHOP.value: {"verleihshop"},
         ProviderName.VI_MOVIES_AND_TV.value: {"vi movies and tv"},
         ProviderName.VIAPLAY.value: {"viaplay"},
+        ProviderName.VIAPLAY_AMAZON_CHANNEL.value: {
+            "viaplay amazon channel",
+            "viaplay amazon channels",
+            "via play amazon channel",
+            "via play amazon channels",
+        },
         ProviderName.VIDDLA.value: {"viddla"},
         ProviderName.VIDEOBUSTER.value: {"videobuster"},
         ProviderName.VIDEOLAND.value: {"videoland"},
