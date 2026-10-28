@@ -1084,7 +1084,7 @@ class Provider:
             "superfresh amazon channel",
             "superfresh amazon channels",
         },
-        ProviderName.SVT.value: {"svt"},
+        ProviderName.SVT.value: {"svt", "svt play", "svtplay", "svt play "},
         ProviderName.SWEET_TV.value: {"sweet.tv", "sweet tv", "sweettv"},
         ProviderName.TABII.value: {"tabii"},
         ProviderName.TBS.value: {"tbs"},
