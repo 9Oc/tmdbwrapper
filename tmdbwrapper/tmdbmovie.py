@@ -247,7 +247,7 @@ class ProviderName(Enum):
     NOW_TV_CINEMA = "Now TV Cinema"
     NPO_START = "NPO Start"
     NRK_TV = "NRK TV"
-    OFR_ON = "OFR ON"
+    ORF_ON = "ORF ON"
     OKKO = "Okko"
     OLDFLIX = "Oldflix"
     ONEPLAY = "Oneplay"
@@ -927,7 +927,7 @@ class Provider:
         ProviderName.NOW_TV_CINEMA.value: {"now tv cinema"},
         ProviderName.NPO_START.value: {"npo start"},
         ProviderName.NRK_TV.value: {"nrk tv", "nrktv"},
-        ProviderName.OFR_ON.value: {"ofr on", "ofron"},
+        ProviderName.ORF_ON.value: {"orf on", "orfon"},
         ProviderName.OKKO.value: {"okko"},
         ProviderName.OLDFLIX.value: {"oldflix"},
         ProviderName.ONEPLAY.value: {"oneplay"},
