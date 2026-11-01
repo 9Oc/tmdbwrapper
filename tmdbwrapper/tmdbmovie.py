@@ -1028,7 +1028,7 @@ class Provider:
         ProviderName.SKY_STORE.value: {"sky store"},
         ProviderName.SKY_X.value: {"sky x"},
         ProviderName.SLING_TV_ORANGE_AND_BLUE.value: {"sling tv orange and blue"},
-        ProviderName.SONY_LIV.value: {"sony liv"},
+        ProviderName.SONY_LIV.value: {"sony liv", "sonyliv", "sony liv "},
         ProviderName.SONY_ONE_AMAZON_CHANNEL.value: {"sony one amazon channel", "sony one amazon channels"},
         ProviderName.SONY_PICTURES_AMAZON_CHANNEL.value: {
             "sony pictures amazon channel",
