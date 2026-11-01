@@ -119,6 +119,7 @@ class ProviderName(Enum):
     ELISA_VIIHDE = "Elisa Viihde"
     EROS_NOW_AMAZON_CHANNEL = "Eros Now Amazon Channel"
     ETERNAL_FAMILY = "Eternal Family"
+    EYE_FILM_PLAYER = "Eye Film Player"
     FANDANGO_AT_HOME = "Fandango At Home"
     FANDOR = "Fandor"
     FANDOR_AMAZON_CHANNEL = "Fandor Amazon Channel"
@@ -665,6 +666,7 @@ class Provider:
             "erosnow amazon channels",
         },
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
+        ProviderName.EYE_FILM_PLAYER.value: {"eye film player", "eyefilm player"},
         ProviderName.FANDANGO_AT_HOME.value: {"fandango at home", "fandango at home free"},
         ProviderName.FANDOR.value: {"fandor"},
         ProviderName.FANDOR_AMAZON_CHANNEL.value: {
