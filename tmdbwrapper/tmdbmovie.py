@@ -143,8 +143,10 @@ class ProviderName(Enum):
     FLIXOLE_APPLE_TV_CHANNEL = "FlixOlé Apple TV Channel"
     FOD = "FOD"
     FOD_CHANNEL_AMAZON_CHANNEL = "FOD Channel Amazon Channel"
+    FOUND_TV = "FOUND TV"
     FOXTEL_NOW = "Foxtel Now"
     FREEFORM = "Freeform"
+    FREE_MOVIES_PLUS = "Free Movies Plus"
     FREENET_MEINVOD = "Freenet meinVOD"
     FUBOTV = "fuboTV"
     FXNOW = "FXNow"
@@ -190,6 +192,7 @@ class ProviderName(Enum):
     JOYN_PLUS = "Joyn Plus"
     JUPITER_PLUS = "Jupiter+"
     JUSTWATCHTV = "JustWatchTV"
+    JUSTWATCH_TV_PLUS = "JustWatch TV Plus"
     KANOPY = "Kanopy"
     KINO_ON_DEMAND = "Kino on Demand"
     KINOPOISK = "Kinopoisk"
@@ -207,6 +210,7 @@ class ProviderName(Enum):
     LIONSGATE_PLAY_AMAZON_CHANNEL = "Lionsgate Play Amazon Channel"
     LIONSGATE_PLAY_APPLE_TV_CHANNEL = "Lionsgate Play Apple TV Channel"
     LIONSGATE_PLUS_AMAZON_CHANNELS = "Lionsgate+ Amazon Channels"
+    LOOKE = "Looke"
     LOOKE_AMAZON_CHANNEL = "Looke Amazon Channel"
     LOVE_NATURE_AMAZON_CHANNEL = "Love Nature Amazon Channel"
     LRT_EPIKA = "LRT Epika"
@@ -650,14 +654,18 @@ class Provider:
         ProviderName.DOCPLAY_AMAZON_CHANNEL.value: {
             "docplay amazon channel",
             "docplay amazon channels",
+            "doc play amazon channel",
+            "doc play amazon channels",
         },
         ProviderName.DOCSVILLE.value: {"docsville"},
         ProviderName.DOCURAMAFILMS_AMAZON_CHANNEL.value: {
             "docuramafilms amazon channel",
             "docuramafilms amazon channels",
+            "docurama films amazon channel",
+            "docurama films amazon channels",
         },
         ProviderName.DRAKEN_FILM.value: {"draken films", "draken film", "drakenfilm", "drakenfilms"},
-        ProviderName.DRTV.value: {"drtv"},
+        ProviderName.DRTV.value: {"drtv", "dr tv"},
         ProviderName.ELISA_VIIHDE.value: {"elisa viihde"},
         ProviderName.EROS_NOW_AMAZON_CHANNEL.value: {
             "eros now amazon channel",
@@ -666,7 +674,7 @@ class Provider:
             "erosnow amazon channels",
         },
         ProviderName.ETERNAL_FAMILY.value: {"eternal family"},
-        ProviderName.EYE_FILM_PLAYER.value: {"eye film player", "eyefilm player"},
+        ProviderName.EYE_FILM_PLAYER.value: {"eye film player", "eyefilm player", "eyefilmplayer"},
         ProviderName.FANDANGO_AT_HOME.value: {"fandango at home", "fandango at home free"},
         ProviderName.FANDOR.value: {"fandor"},
         ProviderName.FANDOR_AMAZON_CHANNEL.value: {
@@ -677,16 +685,16 @@ class Provider:
             "far east amazon channel",
             "far east amazon channels",
         },
-        ProviderName.FAWESOME.value: {"fawesome"},
-        ProviderName.FETCH_TV.value: {"fetch tv"},
-        ProviderName.FILMBOX_PLUS.value: {"filmbox+", "film box+", "filmbox plus"},
+        ProviderName.FAWESOME.value: {"fawesome", "fawesome tv"},
+        ProviderName.FETCH_TV.value: {"fetch tv", "fetchtv"},
+        ProviderName.FILMBOX_PLUS.value: {"filmbox+", "film box+", "filmbox plus", "filmboxplus", "film box plus"},
         ProviderName.FILMELIER_PLUS_AMAZON_CHANNEL.value: {
             "filmelier plus amazon channel",
             "filmelier plus amazon channels",
             "filmelier+ amazon channel",
             "filmelier+ amazon channels",
         },
-        ProviderName.FILMIN.value: {"filmin", "filmin plus", "filmin premier"},
+        ProviderName.FILMIN.value: {"filmin", "filmin plus", "filmin premier", "filmin+"},
         ProviderName.FILMINGO.value: {"filmingo"},
         ProviderName.FILMLEGENDEN_AMAZON_CHANNEL.value: {
             "filmlegenden amazon channel",
@@ -717,19 +725,21 @@ class Provider:
             "fod channel amazon channel",
             "fod channel amazon channels",
         },
-        ProviderName.FOXTEL_NOW.value: {"foxtel now"},
-        ProviderName.FREEFORM.value: {"freeform"},
+        ProviderName.FOUND_TV.value: {"found tv", "foundtv"},
+        ProviderName.FOXTEL_NOW.value: {"foxtel now", "foxtelnow"},
+        ProviderName.FREEFORM.value: {"freeform", "free form"},
+        ProviderName.FREE_MOVIES_PLUS.value: {"free movies plus", "free movies+"},
         ProviderName.FREENET_MEINVOD.value: {"freenet meinvod"},
         ProviderName.FUBOTV.value: {"fubotv", "fubo tv"},
-        ProviderName.FXNOW.value: {"fxnow"},
+        ProviderName.FXNOW.value: {"fxnow", "fx now"},
         ProviderName.GALACTIC_STREAM_AMAZON_CHANNEL.value: {
             "galactic stream amazon channel",
             "galactic stream amazon channels",
         },
-        ProviderName.GLOBOPLAY.value: {"globoplay"},
-        ProviderName.GO3.value: {"go3"},
+        ProviderName.GLOBOPLAY.value: {"globoplay", "globo play"},
+        ProviderName.GO3.value: {"go3", "go 3"},
         ProviderName.GOOGLE_PLAY_MOVIES.value: {"google play movies"},
-        ProviderName.GUIDEDOC.value: {"guidedoc"},
+        ProviderName.GUIDEDOC.value: {"guidedoc", "guide doc"},
         ProviderName.HALLMARK_PLUS_AMAZON_CHANNEL.value: {
             "hallmark+ amazon channel",
             "hallmark+ amazon channels",
@@ -742,13 +752,20 @@ class Provider:
         },
         ProviderName.HBO_MAX.value: {"hbo max", "hbomax"},
         ProviderName.HBO_MAX_AMAZON_CHANNEL.value: {
-            "hbo max  amazon channel",
             "hbo max amazon channel",
             "hbo max amazon channels",
-            "hbo max  amazon channels",
+            "hbomax amazon channel",
+            "hbomax amazon channels",
         },
-        ProviderName.HBO_MAX_ON_U_NEXT.value: {"hbo max on u-next", "hbo max on u next"},
-        ProviderName.HERE_TV.value: {"here tv"},
+        ProviderName.HBO_MAX_ON_U_NEXT.value: {
+            "hbo max on u-next",
+            "hbo max on u next",
+            "hbo max on unext",
+            "hbomax on u-next",
+            "hbomax on u next",
+            "hbomax on unext",
+        },
+        ProviderName.HERE_TV.value: {"here tv", "heretv"},
         ProviderName.HIDIVE.value: {"hidive"},
         ProviderName.HIDIVE_AMAZON_CHANNEL.value: {
             "hidive amazon channel",
@@ -762,9 +779,11 @@ class Provider:
         ProviderName.HISTORAMA_APPLE_TV_CHANNEL.value: {
             "historama apple tv channel",
             "historama apple tv channels",
+            "historama appletv channel",
+            "historama appletv channels",
         },
         ProviderName.HISTORY_VAULT.value: {"history vault"},
-        ProviderName.HI_YAH.value: {"hi-yah", "hi yah"},
+        ProviderName.HI_YAH.value: {"hi-yah", "hi yah", "hiyah"},
         ProviderName.HOICHOI.value: {"hoichoi"},
         ProviderName.HOICHOI_AMAZON_CHANNEL.value: {
             "hoichoi amazon channel",
@@ -773,6 +792,8 @@ class Provider:
         ProviderName.HOICHOI_APPLE_TV_CHANNEL.value: {
             "hoichoi apple tv channel",
             "hoichoi apple tv channels",
+            "hoichoi appletv channel",
+            "hoichoi appletv channels",
         },
         ProviderName.HOLLYWOOD_SUITE.value: {"hollywood suite"},
         ProviderName.HOLLYWOOD_SUITE_AMAZON_CHANNEL.value: {
@@ -787,7 +808,7 @@ class Provider:
         ProviderName.HOOPLA.value: {"hoopla"},
         ProviderName.HOTSTAR.value: {"hotstar"},
         ProviderName.HULU.value: {"hulu"},
-        ProviderName.HUNGAMA_PLAY.value: {"hungama play"},
+        ProviderName.HUNGAMA_PLAY.value: {"hungama play", "hungama ott"},
         ProviderName.ICITOUTV.value: {"icitoutv"},
         ProviderName.IFLIX.value: {"iflix"},
         ProviderName.INDIEFLIX.value: {"indieflix"},
@@ -809,9 +830,28 @@ class Provider:
         },
         ProviderName.JIOHOTSTAR.value: {"jiohotstar", "jio hotstar"},
         ProviderName.JOYN.value: {"joyn"},
-        ProviderName.JOYN_PLUS.value: {"joyn plus", "joyn+"},
-        ProviderName.JUPITER_PLUS.value: {"jupiter+", "jupiter plus"},
-        ProviderName.JUSTWATCHTV.value: {"justwatchtv", "justwatch tv"},
+        ProviderName.JOYN_PLUS.value: {"joyn plus", "joynplus", "joyn+"},
+        ProviderName.JUPITER_PLUS.value: {"jupiter+", "jupiter plus", "jupiterplus"},
+        ProviderName.JUSTWATCHTV.value: {
+            "justwatchtv",
+            "justwatch tv",
+            "just watch tv",
+            "justwatchtv free",
+            "justwatch tv free",
+            "just watch tv free",
+            "justwatchtv store",
+            "justwatch tv store",
+            "just watch tv store",
+        },
+        ProviderName.JUSTWATCH_TV_PLUS.value: {
+            "justwatch tv plus",
+            "justwatch tvplus",
+            "just watch tv plus",
+            "just watch tvplus",
+            "justwatchtvplus",
+            "justwatch tv+",
+            "just watch tv+",
+        },
         ProviderName.KANOPY.value: {"kanopy"},
         ProviderName.KINO_ON_DEMAND.value: {"kino on demand"},
         ProviderName.KINOPOISK.value: {"kinopoisk"},
@@ -821,18 +861,26 @@ class Provider:
         ProviderName.KOCOWA.value: {"kocowa"},
         ProviderName.KPN.value: {"kpn"},
         ProviderName.LACINETEK.value: {"lacinetek"},
-        ProviderName.LEPSI_TV.value: {"lepsi tv", "lepsitv"},
-        ProviderName.LIFETIME.value: {"lifetime"},
-        ProviderName.LIFETIME_MOVIE_CLUB.value: {"lifetime movie club"},
+        ProviderName.LEPSI_TV.value: {"lepsi tv", "lepsitv", "lepšítv", "lepší tv"},
+        ProviderName.LIFETIME.value: {"lifetime", "life time"},
+        ProviderName.LIFETIME_MOVIE_CLUB.value: {"lifetime movie club", "life time movie club"},
         ProviderName.LINE_TV.value: {"line tv", "linetv"},
         ProviderName.LIONSGATE_PLAY.value: {"lionsgate play", "lions gate play"},
         ProviderName.LIONSGATE_PLAY_AMAZON_CHANNEL.value: {
             "lionsgate play amazon channel",
             "lionsgate play amazon channels",
+            "lions gate play amazon channel",
+            "lions gate play amazon channels",
         },
         ProviderName.LIONSGATE_PLAY_APPLE_TV_CHANNEL.value: {
             "lionsgate play apple tv channel",
             "lionsgate play apple tv channels",
+            "lionsgate play appletv channel",
+            "lionsgate play appletv channels",
+            "lions gate play apple tv channel",
+            "lions gate play apple tv channels",
+            "lions gate play appletv channel",
+            "lions gate play appletv channels",
         },
         ProviderName.LIONSGATE_PLUS_AMAZON_CHANNELS.value: {
             "lionsgate+ amazon channels",
@@ -840,6 +888,7 @@ class Provider:
             "lionsgate plus amazon channels",
             "lionsgate plus amazon channel",
         },
+        ProviderName.LOOKE.value: {"looke", "look"},
         ProviderName.LOOKE_AMAZON_CHANNEL.value: {
             "looke amazon channel",
             "looke amazon channels",
@@ -852,14 +901,19 @@ class Provider:
         ProviderName.LTV_ONE.value: {"ltv1", "ltv 1", "ltv one", "ltvone"},
         ProviderName.MAGELLAN_TV.value: {"magellan tv", "magellantv"},
         ProviderName.MAGENTA_TV.value: {"magenta tv", "magentatv"},
-        ProviderName.MAGENTA_TV_PLUS.value: {"magenta tv+", "magenta tv plus"},
+        ProviderName.MAGENTA_TV_PLUS.value: {
+            "magenta tv+",
+            "magenta tv plus",
+            "magentatv+",
+            "magentatv plus",
+        },
         ProviderName.MAXDOME_STORE.value: {"maxdome store"},
         ProviderName.MEDIAKLIKK.value: {"mediaklikk", "media klikk", "mediaklik", "media klik"},
         ProviderName.MEDIASET_INFINITY.value: {"mediaset infinity", "mediasetinfinity"},
-        ProviderName.MEJANE.value: {"mejane"},
+        ProviderName.MEJANE.value: {"mejane", "me jane"},
         ProviderName.MERCADO_PLAY.value: {"mercado play"},
         ProviderName.MEWATCH.value: {"mewatch", "me watch"},
-        ProviderName.MGM_PLUS.value: {"mgm plus", "mgm+"},
+        ProviderName.MGM_PLUS.value: {"mgm plus", "mgmplus", "mgm+"},
         ProviderName.MGM_PLUS_AMAZON_CHANNEL.value: {
             "mgm+ amazon channel",
             "mgm plus amazon channel",
