@@ -20,6 +20,7 @@ from tmdbwrapper.tmdbmovie import Provider, ProviderName, TMDBMovie
 
 _active_clients = []
 _registered_loops: set[asyncio.AbstractEventLoop] = set()
+_COLLAPSE_WHITESPACE_RE = re.compile(r"\s+")
 
 
 class TMDBClient:
@@ -425,16 +426,21 @@ class TMDBClient:
 
         if canonical_name in Provider.ALIASES:
             all_provider_names.update(Provider.ALIASES[canonical_name])
+            all_provider_names = {_COLLAPSE_WHITESPACE_RE.sub(" ", n.lower().strip()) for n in all_provider_names}
 
         # look through offers for matching provider and return the URL if a match is found
         for offer in offers:
             offer_name = offer.package.name if hasattr(offer, "package") else None
-            if offer_name:
-                offer_name_lower = offer_name.lower()
-                if any(provider_name.lower() == offer_name_lower for provider_name in all_provider_names):
-                    url = getattr(offer, "url", None)
-                    if url:
-                        return url
+            if not offer_name:
+                continue
+
+            offer_name_lower = _COLLAPSE_WHITESPACE_RE.sub(" ", offer_name.lower().strip())
+            if any(provider_name == offer_name_lower for provider_name in all_provider_names):
+                url = getattr(offer, "url", None)
+                if not url:
+                    continue
+
+                return url
 
         return None
 
