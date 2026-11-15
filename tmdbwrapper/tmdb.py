@@ -39,6 +39,7 @@ class TMDBClient:
                 http2=True,
                 proxy=self.proxy,
                 timeout=30,
+                trust_env=False,
             )
             self._loop = loop
 
