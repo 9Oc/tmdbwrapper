@@ -842,6 +842,9 @@ class Provider:
             "justwatchtv store",
             "justwatch tv store",
             "just watch tv store",
+            "justwatchtv beta",
+            "justwatch tv beta",
+            "just watch tv beta",
         },
         ProviderName.JUSTWATCH_TV_PLUS.value: {
             "justwatch tv plus",
